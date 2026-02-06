@@ -1277,6 +1277,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { api } from './lib/api';
 import type { UserInfo, DailyReport, FraudAlert } from './lib/api';
 import companyLogo from './assets/company-logo.jpg';
+import autonexLogo from './assets/autonex_ai_logo.jpg';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -1536,43 +1537,184 @@ function LoginPage({ onLogin, onShowRegister }: { onLogin: () => void; onShowReg
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F62FE 0%, #6929C4 50%, #0F62FE 100%)' }}>
-      <div className="auth-bg-shape" style={{ top: '-10%', left: '15%', width: 400, height: 400, background: 'rgba(255,255,255,0.15)' }} />
-      <div className="auth-bg-shape" style={{ bottom: '-15%', right: '10%', width: 500, height: 500, background: 'rgba(255,255,255,0.1)' }} />
-      <div className="auth-bg-shape" style={{ top: '40%', right: '30%', width: 250, height: 250, background: 'rgba(105,41,196,0.3)'}} />
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 0%, #112D6E 0%, #0A1A4A 40%, #060E2B 100%)' }}>
 
-      <div className="w-full max-w-md p-10 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl relative z-10 border border-white/20" style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.3)' }}>
+      {/* === 3D BACKGROUND LAYERS === */}
+
+      {/* Perspective grid floor */}
+      <div className="absolute inset-0" style={{
+        background: `
+          linear-gradient(rgba(15,98,254,0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(15,98,254,0.07) 1px, transparent 1px)
+        `,
+        backgroundSize: '60px 60px',
+        transform: 'perspective(500px) rotateX(60deg)',
+        transformOrigin: 'center top',
+        top: '45%',
+        height: '120%',
+        maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+        pointerEvents: 'none',
+        animation: 'gridScroll 20s linear infinite',
+      }} />
+
+      {/* Large glowing sphere — back layer */}
+      <div className="absolute" style={{
+        top: '15%', left: '50%', transform: 'translate(-50%, -50%)',
+        width: 600, height: 600,
+        background: 'radial-gradient(circle, rgba(15,98,254,0.2) 0%, rgba(15,98,254,0.05) 40%, transparent 65%)',
+        borderRadius: '50%', pointerEvents: 'none',
+        animation: 'breathe 6s ease-in-out infinite',
+      }} />
+
+      {/* Floating orb — left */}
+      <div className="absolute" style={{
+        top: '25%', left: '8%',
+        width: 200, height: 200,
+        background: 'radial-gradient(circle, rgba(105,41,196,0.25) 0%, transparent 70%)',
+        borderRadius: '50%', pointerEvents: 'none',
+        animation: 'floatOrb1 8s ease-in-out infinite',
+        filter: 'blur(2px)',
+      }} />
+
+      {/* Floating orb — right */}
+      <div className="absolute" style={{
+        top: '60%', right: '5%',
+        width: 250, height: 250,
+        background: 'radial-gradient(circle, rgba(15,98,254,0.2) 0%, transparent 70%)',
+        borderRadius: '50%', pointerEvents: 'none',
+        animation: 'floatOrb2 10s ease-in-out infinite',
+        filter: 'blur(2px)',
+      }} />
+
+      {/* Small accent orb — top right */}
+      <div className="absolute" style={{
+        top: '10%', right: '20%',
+        width: 100, height: 100,
+        background: 'radial-gradient(circle, rgba(59,130,246,0.35) 0%, transparent 70%)',
+        borderRadius: '50%', pointerEvents: 'none',
+        animation: 'floatOrb3 7s ease-in-out infinite',
+      }} />
+
+      {/* Glowing horizontal line */}
+      <div className="absolute" style={{
+        top: '48%', left: '10%', right: '10%', height: 1,
+        background: 'linear-gradient(90deg, transparent 0%, rgba(15,98,254,0.15) 30%, rgba(15,98,254,0.3) 50%, rgba(15,98,254,0.15) 70%, transparent 100%)',
+        pointerEvents: 'none',
+        animation: 'linePulse 4s ease-in-out infinite',
+      }} />
+
+      {/* 3D Ring / ellipse behind card */}
+      <div className="absolute" style={{
+        top: '50%', left: '50%',
+        width: 520, height: 520,
+        transform: 'translate(-50%, -50%)',
+        border: '1px solid rgba(15,98,254,0.1)',
+        borderRadius: '50%',
+        pointerEvents: 'none',
+        animation: 'ringRotate 20s linear infinite',
+      }}>
+        <div className="absolute" style={{
+          top: 0, left: '50%', transform: 'translate(-50%, -50%)',
+          width: 6, height: 6, borderRadius: '50%',
+          background: 'rgba(15,98,254,0.6)',
+          boxShadow: '0 0 12px rgba(15,98,254,0.4)',
+        }} />
+      </div>
+
+      {/* Second ring — offset */}
+      <div className="absolute" style={{
+        top: '50%', left: '50%',
+        width: 440, height: 440,
+        transform: 'translate(-50%, -50%) rotate(45deg)',
+        border: '1px solid rgba(105,41,196,0.08)',
+        borderRadius: '50%',
+        pointerEvents: 'none',
+        animation: 'ringRotate 25s linear infinite reverse',
+      }} />
+
+      {/* Floating particles */}
+      {[...Array(12)].map((_, i) => (
+        <div key={i} className="absolute rounded-full" style={{
+          width: Math.random() * 3 + 1.5,
+          height: Math.random() * 3 + 1.5,
+          background: i % 3 === 0 ? 'rgba(105,41,196,0.5)' : 'rgba(15,98,254,0.4)',
+          left: `${10 + Math.random() * 80}%`,
+          top: `${10 + Math.random() * 80}%`,
+          pointerEvents: 'none',
+          boxShadow: `0 0 ${4 + Math.random() * 6}px ${i % 3 === 0 ? 'rgba(105,41,196,0.3)' : 'rgba(15,98,254,0.3)'}`,
+          animation: `particleFloat${(i % 4) + 1} ${6 + Math.random() * 8}s ease-in-out infinite`,
+          animationDelay: `${Math.random() * 5}s`,
+        }} />
+      ))}
+
+      {/* Bottom light reflection */}
+      <div className="absolute bottom-0 left-0 right-0 h-40" style={{
+        background: 'linear-gradient(to top, rgba(15,98,254,0.08), transparent)',
+        pointerEvents: 'none',
+      }} />
+
+      {/* === GLASS CARD === */}
+      <div className="w-full max-w-md p-10 rounded-2xl relative z-10 border" style={{
+        background: 'rgba(255,255,255,0.01)',
+        backdropFilter: 'blur(40px)',
+        WebkitBackdropFilter: 'blur(60px)',
+        borderColor: 'rgba(255,255,255,0.06)',
+        boxShadow: '0 32px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 60px rgba(15,98,254,0.03), 0 0 100px rgba(15,98,254,0.04)',
+      }}>
+        {/* Inner top highlight */}
+        <div className="absolute top-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)' }} />
+
         <div className="text-center mb-8">
-          <img src={companyLogo} alt="Autonex" className="w-14 h-14 rounded-xl object-cover shadow-md mx-auto mb-3" />
-          <div className="flex items-baseline justify-center gap-2">
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Workwise</h1>
-            <span className="text-sm text-gray-400 font-medium">by Autonex</span>
+          {/* 3D Floating Logo with glow layers */}
+          <div className="relative inline-block mb-5">
+            <div className="absolute" style={{ inset: -20, borderRadius: 28, background: 'rgba(15,98,254,0.15)', filter: 'blur(30px)', animation: 'breathe 4s ease-in-out infinite' }} />
+            <div className="absolute inset-0 rounded-2xl" style={{ background: 'rgba(15,98,254,0.35)', filter: 'blur(20px)', transform: 'translateY(12px) scale(0.8)' }} />
+            <img src={autonexLogo} alt="Autonex" className="relative w-20 h-20 rounded-2xl object-cover" style={{
+              boxShadow: '0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1), 0 0 30px rgba(15,98,254,0.15)',
+              animation: 'float 4s ease-in-out infinite',
+            }} />
+            <div className="absolute top-0 left-0 w-full h-full rounded-2xl overflow-hidden pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%)' }} />
           </div>
-          <p className="text-sm text-gray-500 mt-1.5">Employee Productivity Intelligence</p>
+          <div className="flex items-baseline justify-center gap-2">
+            <h1 className="text-3xl font-extrabold text-white tracking-tight">Workwise</h1>
+             
+             <span className="text-sm text-blue-300/50 font-medium">by Autonex</span>
+
+          </div>
+          <p className="text-sm font-semibold text-blue-200/70 mt-1.5">Employee Productivity Intelligence</p>
         </div>
 
         <form className="space-y-5" onSubmit={handleSubmit}>
           {error && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm text-center font-medium">{error}</div>
+            <div className="p-3 rounded-lg text-sm text-center font-medium text-red-300" style={{ background: 'rgba(218,30,40,0.15)', border: '1px solid rgba(218,30,40,0.25)' }}>{error}</div>
           )}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Email</label>
-            <input type="email" className="w-full px-3.5 py-3 border-2 border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors bg-white"
+            <label className="text-xs font-semibold text-blue-200/70 uppercase tracking-wide">Email</label>
+            <input type="email" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }}
+              onFocus={(e) => { e.target.style.borderColor = 'rgba(15,98,254,0.4)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px rgba(15,98,254,0.1)'; }}
+              onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2)'; }}
               placeholder="you@autonex.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Password</label>
-            <input type="password" className="w-full px-3.5 py-3 border-2 border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors bg-white"
+            <label className="text-xs font-semibold text-blue-200/70 uppercase tracking-wide">Password</label>
+            <input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }}
+              onFocus={(e) => { e.target.style.borderColor = 'rgba(15,98,254,0.4)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px rgba(15,98,254,0.1)'; }}
+              onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2)'; }}
               placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
           <button type="submit" disabled={loading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white font-semibold text-sm rounded-lg transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-blue-600/25 hover:shadow-blue-600/40">
-            {loading ? 'Signing in...' : 'Sign In'}
+            className="w-full py-3 text-white font-semibold text-sm rounded-lg transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden group"
+            style={{ background: 'linear-gradient(135deg, #0F62FE, #3B82F6)', boxShadow: '0 8px 30px rgba(15,98,254,0.35), inset 0 1px 0 rgba(255,255,255,0.15)' }}>
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)' }} />
+            <span className="relative">{loading ? 'Signing in...' : 'Sign In'}</span>
           </button>
         </form>
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm text-blue-200/30">
           Don't have an account?{' '}
-          <a href="#" onClick={(e) => { e.preventDefault(); onShowRegister(); }} className="text-blue-600 hover:text-blue-700 font-semibold">Register</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); onShowRegister(); }} className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Register</a>
         </div>
       </div>
     </div>
@@ -1601,59 +1743,108 @@ function RegisterPage({ onShowLogin }: { onShowLogin: () => void }) {
     finally { setLoading(false); }
   };
 
+  const bgElements = (
+    <>
+      <div className="absolute inset-0" style={{
+        background: 'linear-gradient(rgba(15,98,254,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(15,98,254,0.07) 1px, transparent 1px)',
+        backgroundSize: '60px 60px', transform: 'perspective(500px) rotateX(60deg)', transformOrigin: 'center top',
+        top: '45%', height: '120%',
+        maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+        pointerEvents: 'none', animation: 'gridScroll 20s linear infinite',
+      }} />
+      <div className="absolute" style={{ top: '15%', left: '50%', transform: 'translate(-50%, -50%)', width: 600, height: 600, background: 'radial-gradient(circle, rgba(15,98,254,0.2) 0%, rgba(15,98,254,0.05) 40%, transparent 65%)', borderRadius: '50%', pointerEvents: 'none', animation: 'breathe 6s ease-in-out infinite' }} />
+      <div className="absolute" style={{ top: '25%', left: '8%', width: 200, height: 200, background: 'radial-gradient(circle, rgba(105,41,196,0.25) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', animation: 'floatOrb1 8s ease-in-out infinite', filter: 'blur(2px)' }} />
+      <div className="absolute" style={{ top: '60%', right: '5%', width: 250, height: 250, background: 'radial-gradient(circle, rgba(15,98,254,0.2) 0%, transparent 70%)', borderRadius: '50%', pointerEvents: 'none', animation: 'floatOrb2 10s ease-in-out infinite', filter: 'blur(2px)' }} />
+      <div className="absolute" style={{ top: '50%', left: '50%', width: 520, height: 520, transform: 'translate(-50%, -50%)', border: '1px solid rgba(15,98,254,0.1)', borderRadius: '50%', pointerEvents: 'none', animation: 'ringRotate 20s linear infinite' }} />
+      <div className="absolute" style={{ top: '50%', left: '50%', width: 440, height: 440, transform: 'translate(-50%, -50%) rotate(45deg)', border: '1px solid rgba(105,41,196,0.08)', borderRadius: '50%', pointerEvents: 'none', animation: 'ringRotate 25s linear infinite reverse' }} />
+      {[...Array(8)].map((_, i) => (
+        <div key={i} className="absolute rounded-full" style={{
+          width: Math.random() * 3 + 1.5, height: Math.random() * 3 + 1.5,
+          background: i % 3 === 0 ? 'rgba(105,41,196,0.5)' : 'rgba(15,98,254,0.4)',
+          left: `${10 + Math.random() * 80}%`, top: `${10 + Math.random() * 80}%`,
+          pointerEvents: 'none', boxShadow: `0 0 ${4 + Math.random() * 6}px ${i % 3 === 0 ? 'rgba(105,41,196,0.3)' : 'rgba(15,98,254,0.3)'}`,
+          animation: `particleFloat${(i % 4) + 1} ${6 + Math.random() * 8}s ease-in-out infinite`, animationDelay: `${Math.random() * 5}s`,
+        }} />
+      ))}
+      <div className="absolute bottom-0 left-0 right-0 h-40" style={{ background: 'linear-gradient(to top, rgba(15,98,254,0.08), transparent)', pointerEvents: 'none' }} />
+    </>
+  );
+
+  const glassCardStyle = {
+    background: 'rgba(255,255,255,0.02)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)',
+    borderColor: 'rgba(255,255,255,0.06)', boxShadow: '0 32px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 60px rgba(15,98,254,0.03), 0 0 100px rgba(15,98,254,0.04)',
+  };
+
+  const inputStyle = { background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' };
+  const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => { e.target.style.borderColor = 'rgba(15,98,254,0.4)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px rgba(15,98,254,0.1)'; };
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2)'; };
+
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0F2F5' }}>
-        <div className="w-full max-w-md p-10 bg-white rounded-2xl shadow-2xl text-center border border-gray-200">
-          <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center text-green-600 text-3xl mx-auto mb-5">✓</div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">Registration Successful!</h3>
-          <p className="text-gray-500 mb-6 text-sm">Your account is pending admin approval.</p>
-          <a href="#" onClick={(e) => { e.preventDefault(); onShowLogin(); }} className="text-blue-600 hover:text-blue-700 font-semibold text-sm">Return to Login</a>
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 0%, #112D6E 0%, #0A1A4A 40%, #060E2B 100%)' }}>
+        {bgElements}
+        <div className="w-full max-w-md p-10 rounded-2xl text-center relative z-10 border" style={glassCardStyle}>
+          <div className="absolute top-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)' }} />
+          <div className="w-16 h-16 rounded-full flex items-center justify-center text-green-400 text-3xl mx-auto mb-5" style={{ background: 'rgba(25,128,56,0.15)', boxShadow: '0 0 30px rgba(25,128,56,0.15)' }}>✓</div>
+          <h3 className="text-2xl font-bold text-white mb-2">Registration Successful!</h3>
+          <p className="text-blue-200/40 mb-6 text-sm">Your account is pending admin approval.</p>
+          <a href="#" onClick={(e) => { e.preventDefault(); onShowLogin(); }} className="text-blue-400 hover:text-blue-300 font-semibold text-sm transition-colors">Return to Login</a>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: '#F0F2F5' }}>
-      <div className="auth-bg-shape" style={{ top: '-10%', right: '15%', width: 400, height: 400, background: '#D0E2FF' }} />
-      <div className="auth-bg-shape" style={{ bottom: '-15%', left: '10%', width: 500, height: 500, background: '#E8DAEF' }} />
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 0%, #112D6E 0%, #0A1A4A 40%, #060E2B 100%)' }}>
+      {bgElements}
 
-      <div className="w-full max-w-md p-10 bg-white rounded-2xl shadow-2xl relative z-10 border border-gray-200">
+      <div className="w-full max-w-md p-10 rounded-2xl relative z-10 border" style={glassCardStyle}>
+        <div className="absolute top-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)' }} />
+
         <div className="text-center mb-6">
-          <img src={companyLogo} alt="Autonex" className="w-10 h-10 rounded-lg object-cover shadow mx-auto mb-2" />
-          <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
+          <div className="relative inline-block mb-3">
+            <div className="absolute" style={{ inset: -12, borderRadius: 16, background: 'rgba(15,98,254,0.15)', filter: 'blur(20px)', animation: 'breathe 4s ease-in-out infinite' }} />
+            <div className="absolute inset-0 rounded-xl" style={{ background: 'rgba(15,98,254,0.35)', filter: 'blur(16px)', transform: 'translateY(8px) scale(0.8)' }} />
+            <img src={autonexLogo} alt="Autonex" className="relative w-14 h-14 rounded-xl object-cover" style={{ boxShadow: '0 16px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1)', animation: 'float 4s ease-in-out infinite' }} />
+            <div className="absolute top-0 left-0 w-full h-full rounded-xl overflow-hidden pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%)' }} />
+          </div>
+          <h2 className="text-2xl font-bold text-white">Create Account</h2>
+          <p className="text-sm text-blue-200/35 mt-1">Join the Workwise platform</p>
         </div>
+
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {error && <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm text-center font-medium">{error}</div>}
+          {error && <div className="p-3 rounded-lg text-sm text-center font-medium text-red-300" style={{ background: 'rgba(218,30,40,0.15)', border: '1px solid rgba(218,30,40,0.25)' }}>{error}</div>}
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Full Name</label>
-            <input type="text" className="w-full px-3.5 py-3 border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(15,98,254,0.1)] rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
-              placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} required />
+            <label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Full Name</label>
+            <input type="text" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle}
+              onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Email</label>
-            <input type="email" className="w-full px-3.5 py-3 border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(15,98,254,0.1)] rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
-              placeholder="you@autonex.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Email</label>
+            <input type="email" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle}
+              onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="you@autonex.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Password</label>
-            <input type="password" className="w-full px-3.5 py-3 border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(15,98,254,0.1)] rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
-              placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Password</label>
+            <input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle}
+              onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Confirm Password</label>
-            <input type="password" className="w-full px-3.5 py-3 border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:shadow-[0_0_0_3px_rgba(15,98,254,0.1)]  rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 transition-colors"
-              placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+            <label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Confirm Password</label>
+            <input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle}
+              onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
           </div>
           <button type="submit" disabled={loading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-lg transition-colors mt-2 disabled:opacity-60">
-            {loading ? 'Creating Account...' : 'Register'}
+            className="w-full py-3 text-white font-semibold text-sm rounded-lg transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed mt-2 relative overflow-hidden group"
+            style={{ background: 'linear-gradient(135deg, #0F62FE, #3B82F6)', boxShadow: '0 8px 30px rgba(15,98,254,0.35), inset 0 1px 0 rgba(255,255,255,0.15)' }}>
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)' }} />
+            <span className="relative">{loading ? 'Creating Account...' : 'Register'}</span>
           </button>
         </form>
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-6 text-center text-sm text-blue-200/30">
           Already have an account?{' '}
-          <a href="#" onClick={(e) => { e.preventDefault(); onShowLogin(); }} className="text-blue-600 hover:text-blue-700 font-semibold">Sign In</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); onShowLogin(); }} className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Sign In</a>
         </div>
       </div>
     </div>

@@ -166,3 +166,86 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   transform: scale(1.15);
   box-shadow: 0 0 0 1px rgba(15, 98, 254, 0.3);
 }
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ============================================================
+   ADD ALL OF THIS TO THE BOTTOM OF YOUR App.css
+   ============================================================ */
+
+/* 3D Logo float */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Breathing glow */
+@keyframes breathe {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+/* Perspective grid scroll */
+@keyframes gridScroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 60px; }
+}
+
+/* Rotating rings */
+@keyframes ringRotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Horizontal line pulse */
+@keyframes linePulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* Floating orbs */
+@keyframes floatOrb1 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(20px, -30px); }
+  66% { transform: translate(-15px, 15px); }
+}
+
+@keyframes floatOrb2 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(-25px, 20px); }
+  66% { transform: translate(15px, -25px); }
+}
+
+@keyframes floatOrb3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(10px, -20px); }
+}
+
+/* Particle float variations */
+@keyframes particleFloat1 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.4; }
+  25% { transform: translate(15px, -20px); opacity: 0.8; }
+  50% { transform: translate(-10px, -35px); opacity: 0.5; }
+  75% { transform: translate(20px, -15px); opacity: 0.9; }
+}
+
+@keyframes particleFloat2 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.5; }
+  25% { transform: translate(-20px, -15px); opacity: 0.9; }
+  50% { transform: translate(10px, -30px); opacity: 0.3; }
+  75% { transform: translate(-15px, -10px); opacity: 0.7; }
+}
+
+@keyframes particleFloat3 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.6; }
+  33% { transform: translate(25px, -25px); opacity: 0.3; }
+  66% { transform: translate(-20px, -40px); opacity: 0.8; }
+}
+
+@keyframes particleFloat4 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+  33% { transform: translate(-15px, -30px); opacity: 0.7; }
+  66% { transform: translate(10px, -15px); opacity: 0.5; }
+}
