@@ -1,4 +1,4 @@
-#root {
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -39,4 +39,130 @@
 
 .read-the-docs {
   color: #888;
+} */
+
+
+
+/* ============================================================
+   WORKWISE by AUTONEX — Custom Styles (alongside Tailwind)
+   Only things Tailwind can't do natively
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* Base font override */
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #C6C6C6;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A8A8A8;
+}
+
+/* Selection */
+::selection {
+  background: #D0E2FF;
+  color: #0043CE;
+}
+
+/* Mono font utility */
+.font-mono-custom {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+}
+
+/* Pulse dot animation */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Smooth fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Scale-in for modals */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in {
+  animation: scaleIn 0.2s ease forwards;
+}
+
+/* Spinner */
+@keyframes spin-custom {
+  to { transform: rotate(360deg); }
+}
+.custom-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #E0E0E0;
+  border-top-color: #0F62FE;
+  border-radius: 50%;
+  animation: spin-custom 0.8s linear infinite;
+}
+
+/* Auth page background shapes */
+.auth-bg-shape {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Date input reset */
+input[type="date"] {
+  font-family: 'DM Sans', sans-serif;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.5;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Recharts overrides */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #F4F4F4 !important;
+}
+.recharts-legend-item-text {
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 12px !important;
+}
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+/* Heatmap cell hover */
+.heatmap-cell {
+  transition: all 0.15s ease;
+}
+.heatmap-cell:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 1px rgba(15, 98, 254, 0.3);
 }
