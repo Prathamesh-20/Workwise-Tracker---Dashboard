@@ -1397,6 +1397,26 @@ function getInitials(name: string): string {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 }
 
+function getAvatarColor(name: string): { bg: string; text: string } {
+  const colors = [
+    { bg: '#D0E2FF', text: '#0043CE' },
+    { bg: '#E8DAEF', text: '#6929C4' },
+    { bg: '#BAE6FF', text: '#0058A1' },
+    { bg: '#D9F0D3', text: '#198038' },
+    { bg: '#FFD6E8', text: '#9F1853' },
+    { bg: '#FFF1C9', text: '#8A6500' },
+    { bg: '#FFD7D9', text: '#A2191F' },
+    { bg: '#D4BBFF', text: '#491D8B' },
+    { bg: '#B6F0E8', text: '#005D5D' },
+    { bg: '#FFDDC1', text: '#8A3800' },
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
 function getLocalDateString(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -1879,7 +1899,7 @@ function PendingApprovals({ users, onApprove, onReject, loading }: {
   if (users.length === 0) return null;
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
         <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
           <Icons.Alert /> Pending Approvals
           <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700">{users.length}</span>
@@ -1888,7 +1908,7 @@ function PendingApprovals({ users, onApprove, onReject, loading }: {
       {users.map((user) => (
         <div key={user.id} className="flex items-center justify-between px-5 py-3.5 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xs">{getInitials(user.name)}</div>
+            <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style={{ background: getAvatarColor(user.name).bg, color: getAvatarColor(user.name).text }}>{getInitials(user.name)}</div>
             <div>
               <div className="font-semibold text-sm text-gray-900">{user.name}</div>
               <div className="text-xs text-gray-500">{user.email}</div>
@@ -1937,10 +1957,10 @@ function EmployeeListView({ employees, employeeReports, onViewDetails, onDelete 
               const grade = getEfficiencyGrade(prodScore);
 
               return (
-                <tr key={emp.id} className="border-b border-gray-800 hover:bg-gray-50 transition-colors">
+                <tr key={emp.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-bold text-xs">{getInitials(emp.name)}</div>
+                      <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style={{ background: getAvatarColor(emp.name).bg, color: getAvatarColor(emp.name).text }}>{getInitials(emp.name)}</div>
                       <div>
                         <div className="font-semibold text-sm text-gray-900">{emp.name}</div>
                         <div className="text-xs text-gray-500">{emp.email}</div>
@@ -2103,7 +2123,7 @@ function EmployeeDetailModal({ employee, onClose }: { employee: UserInfo; onClos
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-200">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-lg font-bold">{getInitials(employee.name)}</div>
+            <div className="w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold" style={{ background: getAvatarColor(employee.name).bg, color: getAvatarColor(employee.name).text }}>{getInitials(employee.name)}</div>
             <div>
               <h2 className="text-lg font-bold text-gray-900">{employee.name}</h2>
               <p className="text-xs text-gray-500">{employee.email}</p>
@@ -2113,7 +2133,7 @@ function EmployeeDetailModal({ employee, onClose }: { employee: UserInfo; onClos
         </div>
 
         {/* Date nav */}
-        <div className="flex items-center justify-center gap-4 p-3 bg-gray-50 border-b border-gray-800">
+        <div className="flex items-center justify-center gap-4 p-3 bg-gray-50 border-b border-gray-100">
           <button className="w-8 h-8 flex items-center justify-center border border-gray-200 bg-white rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-all" onClick={() => changeDate(-1)}>←</button>
           <div className="flex items-center gap-2 bg-white px-3 py-1.5 border border-gray-200 rounded-lg shadow-sm">
             <Icons.Calendar />
@@ -2126,7 +2146,7 @@ function EmployeeDetailModal({ employee, onClose }: { employee: UserInfo; onClos
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-3 p-5 bg-gray-50 border-b border-gray-800">
+        <div className="grid grid-cols-4 gap-3 p-5 bg-gray-50 border-b border-gray-100">
           <div className="bg-white rounded-xl p-3.5 text-center border border-gray-200 shadow-sm">
             <div className="text-xl font-extrabold text-blue-600 font-mono-custom">{loading ? '...' : formatDuration(totalActive) || '0m'}</div>
             <div className="text-[10px] font-bold uppercase text-gray-400 mt-1 tracking-wider">Active Time</div>
@@ -2247,7 +2267,7 @@ function AppUsageList({ report }: { report: DailyReport | null }) {
 function Card({ title, icon, children, className = '' }: { title: string; icon: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
     <div className={`bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden ${className}`}>
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
         <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">{icon} {title}</h3>
       </div>
       <div className="p-5">{children}</div>
@@ -2415,7 +2435,7 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
               <div className="text-sm font-semibold text-gray-900">{user.name}</div>
               <div className="text-[11px] text-gray-500 capitalize">{user.role}</div>
             </div>
-            <div className="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-600 font-semibold text-xs shadow-sm">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-xs shadow-sm border" style={{ background: getAvatarColor(user.name).bg, color: getAvatarColor(user.name).text, borderColor: getAvatarColor(user.name).bg }}>
               {getInitials(user.name)}
             </div>
           </div>
@@ -2508,7 +2528,7 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
                 {selectedEmployee ? (
                   <>
                     <div className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl mb-5">
-                      <div className="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-lg">{getInitials(selectedEmployee.name)}</div>
+                      <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-lg" style={{ background: getAvatarColor(selectedEmployee.name).bg, color: getAvatarColor(selectedEmployee.name).text }}>{getInitials(selectedEmployee.name)}</div>
                       <div>
                         <div className="font-semibold text-base text-gray-900">{selectedEmployee.name}</div>
                         <div className="text-xs text-gray-500">{selectedEmployee.email}</div>
@@ -2569,7 +2589,7 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
         {!isAdmin && (
           <div className="p-8 pt-6 max-w-4xl mx-auto animate-fade-in">
             <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden" style={{ borderTop: '3px solid #0F62FE' }}>
-              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
                 <div>
                   <h2 className="text-lg font-bold text-gray-900">Today's Activity</h2>
                   <p className="text-xs text-gray-500 mt-0.5">Your tracked productivity stats</p>
