@@ -1912,7 +1912,7 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
 // MAIN DASHBOARD
 // ============================================================
 function Dashboard({ user, onLogout }: { user: { name: string; role: string }; onLogout: () => void }) {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'employees' | 'reports'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'employees' | 'reports' | 'leaderboard'>('dashboard');
   const [employees, setEmployees] = useState<UserInfo[]>([]);
   const [pendingUsers, setPendingUsers] = useState<UserInfo[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<UserInfo | null>(null);
@@ -1924,6 +1924,9 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
   const [actionLoading, setActionLoading] = useState(false);
   const [weeklyData, setWeeklyData] = useState<any[]>([]);
   const [darkMode, setDarkMode] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>(() => { const d = new Date(); d.setDate(d.getDate() - 1); return getLocalDateString(d); });
+  const [viewMode, setViewMode] = useState<'date' | 'range'>('date');
+  const [rangeDays, setRangeDays] = useState<number>(7);
   const isAdmin = user.role === 'admin';
   const dm = darkMode;
 
@@ -1934,9 +1937,35 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
         const filteredEmps = emps.filter(e => e.role !== 'admin');
         setEmployees(filteredEmps); setPendingUsers(pending); setFraudAlerts(fraudData.alerts || []);
         const reports: Record<string, DailyReport> = {};
-        const todayStr = getLocalDateString(new Date());
-        await Promise.all(filteredEmps.map(async (emp) => { try { reports[emp.id] = await api.getDailyReport(todayStr, emp.id); } catch {} }));
+        
+        if (viewMode === 'date') {
+          await Promise.all(filteredEmps.map(async (emp) => { try { reports[emp.id] = await api.getDailyReport(selectedDate, emp.id); } catch {} }));
+        } else {
+          for (const emp of filteredEmps) {
+            let totalActive = 0, totalIdle = 0;
+            const allApps: Record<string, number> = {};
+            for (let i = 0; i < rangeDays; i++) {
+              const d = new Date(selectedDate + 'T12:00:00');
+              d.setDate(d.getDate() + i);
+              try {
+                const r = await api.getDailyReport(getLocalDateString(d), emp.id);
+                totalActive += r.total_active_seconds || 0;
+                totalIdle += r.total_idle_seconds || 0;
+                (r.apps || []).forEach(a => { allApps[a.name] = (allApps[a.name] || 0) + a.active_seconds; });
+              } catch {}
+            }
+            reports[emp.id] = {
+              date: selectedDate,
+              total_hours: 0,
+              user_id: emp.id,
+              total_active_seconds: totalActive,
+              total_idle_seconds: totalIdle,
+              apps: Object.entries(allApps).map(([name, secs]) => ({ name, active_seconds: secs, is_browser: false, sub_activities: [], duration: '', duration_seconds: 0 })).sort((a, b) => b.active_seconds - a.active_seconds)
+            } as DailyReport;
+          }
+        }
         setEmployeeReports(reports);
+        
         const weekly: any[] = [];
         for (let i = 6; i >= 0; i--) {
           const d = new Date(); d.setDate(d.getDate() - i); const dateStr = getLocalDateString(d); const dayName = d.toLocaleDateString('en', { weekday: 'short' });
@@ -1951,7 +1980,7 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
     } catch (error) { console.error('Failed to load data:', error); } finally { setLoading(false); }
   };
 
-  useEffect(() => { loadData(); const i = setInterval(loadData, 30000); return () => clearInterval(i); }, []);
+  useEffect(() => { loadData(); const i = setInterval(loadData, 30000); return () => clearInterval(i); }, [selectedDate, viewMode, rangeDays, isAdmin]);
   useEffect(() => { const load = async () => { if (selectedEmployee && !showDetailModal) { try { setEmployeeReport(await api.getDailyReport(undefined, selectedEmployee.id)); } catch { setEmployeeReport(null); } } }; load(); }, [selectedEmployee]);
 
   const analytics = useMemo(() => {
@@ -1975,6 +2004,7 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
   const navItems = [
     { id: 'dashboard' as const, label: 'Dashboard', icon: <Icons.Dashboard/> },
     ...(isAdmin ? [{ id: 'employees' as const, label: 'Employees', icon: <Icons.Users/>, badge: pendingUsers.length }] : []),
+    ...(isAdmin ? [{ id: 'leaderboard' as const, label: 'Leaderboard', icon: <Icons.BarChart3/> }] : []),
     ...(isAdmin ? [{ id: 'reports' as const, label: 'Reports', icon: <Icons.FileText/> }] : []),
   ];
 
@@ -2007,10 +2037,10 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
         <header className="flex justify-between items-center px-8 pt-6 pb-0">
           <div>
             <h1 className={`text-2xl font-extrabold tracking-tight ${dm ? 'text-white' : 'text-gray-900'}`}>
-              {activeTab === 'dashboard' ? (isAdmin ? 'Team Dashboard' : 'My Dashboard') : activeTab === 'employees' ? 'Employee Management' : 'Reports'}
+              {activeTab === 'dashboard' ? (isAdmin ? 'Team Dashboard' : 'My Dashboard') : activeTab === 'employees' ? 'Employee Management' : activeTab === 'leaderboard' ? 'Leaderboard' : 'Reports'}
             </h1>
             <p className={`text-sm mt-0.5 ${dm ? 'text-gray-400' : 'text-gray-500'}`}>
-              {activeTab === 'dashboard' ? (isAdmin ? `${employees.length} employees tracked today` : 'Your productivity overview') : activeTab === 'employees' ? `${employees.length} active employees` : 'Export productivity reports'}
+              {activeTab === 'dashboard' ? (isAdmin ? `${employees.length} employees tracked` : 'Your productivity overview') : activeTab === 'employees' ? `${employees.length} active employees` : activeTab === 'leaderboard' ? 'Top performers by productivity score' : 'Export productivity reports'}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -2019,8 +2049,119 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
           </div>
         </header>
 
+        {isAdmin && (activeTab === 'dashboard' || activeTab === 'leaderboard') && (
+          <div className={`px-8 py-4 border-b ${dm ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'}`}>
+            <div className="flex items-center gap-3 flex-wrap">
+              <button onClick={() => setViewMode('date')} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${viewMode === 'date' ? (dm ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600 border border-blue-200') : (dm ? 'border border-gray-600 text-gray-400 hover:bg-gray-700' : 'border border-gray-200 text-gray-600 hover:bg-gray-100')}`}>Date</button>
+              <button onClick={() => { setViewMode('date'); const d = new Date(); d.setDate(d.getDate() - 1); setSelectedDate(getLocalDateString(d)); }} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${dm ? 'border border-gray-600 text-gray-400 hover:bg-gray-700' : 'border border-gray-200 text-gray-600 hover:bg-gray-100'}`}>Yesterday</button>
+              <button onClick={() => { setViewMode('range'); setRangeDays(7); }} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${viewMode === 'range' && rangeDays === 7 ? (dm ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600 border border-blue-200') : (dm ? 'border border-gray-600 text-gray-400 hover:bg-gray-700' : 'border border-gray-200 text-gray-600 hover:bg-gray-100')}`}>Last 7 Days</button>
+              <button onClick={() => { setViewMode('range'); setRangeDays(30); }} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${viewMode === 'range' && rangeDays === 30 ? (dm ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600 border border-blue-200') : (dm ? 'border border-gray-600 text-gray-400 hover:bg-gray-700' : 'border border-gray-200 text-gray-600 hover:bg-gray-100')}`}>Last 30 Days</button>
+              {viewMode === 'date' && (
+                <div className="flex items-center gap-2 ml-auto">
+                  <button onClick={() => { const d = new Date(selectedDate + 'T12:00:00'); d.setDate(d.getDate() - 1); setSelectedDate(getLocalDateString(d)); }} className={`w-8 h-8 flex items-center justify-center border rounded-lg text-sm transition-all ${dm ? 'border-gray-600 text-gray-400 hover:bg-gray-700' : 'border-gray-200 text-gray-600 hover:bg-gray-100'}`}>←</button>
+                  <div className={`flex items-center gap-2 px-3 py-1.5 border rounded-lg shadow-sm ${dm ? 'border-gray-600 bg-gray-700 text-gray-300' : 'border-gray-200 bg-white'}`}>
+                    <Icons.Calendar/>
+                    <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} max={getLocalDateString(new Date())} className={`bg-transparent border-none text-sm font-medium focus:outline-none ${dm ? 'text-gray-300' : 'text-gray-700'}`}/>
+                  </div>
+                  <button onClick={() => { const d = new Date(selectedDate + 'T12:00:00'); d.setDate(d.getDate() + 1); const maxDate = new Date(); if (d <= maxDate) setSelectedDate(getLocalDateString(d)); }} disabled={selectedDate >= getLocalDateString(new Date())} className={`w-8 h-8 flex items-center justify-center border rounded-lg text-sm transition-all disabled:opacity-30 ${dm ? 'border-gray-600 text-gray-400 hover:bg-gray-700 disabled:hover:bg-transparent' : 'border-gray-200 text-gray-600 hover:bg-gray-100 disabled:hover:bg-transparent'}`}>→</button>
+                </div>
+              )}
+              {viewMode === 'range' && (
+                <div className={`ml-auto text-sm font-medium ${dm ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Viewing last {rangeDays} days ending {new Date(selectedDate + 'T12:00:00').toLocaleDateString('en', { month: 'short', day: 'numeric' })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {activeTab === 'reports' && isAdmin ? (
           <ReportsTab employees={employees} employeeReports={employeeReports} fraudAlerts={fraudAlerts} dm={dm}/>
+        ) : activeTab === 'leaderboard' && isAdmin ? (
+          <div className="p-8 pt-6 animate-fade-in">
+            <div className={`border rounded-xl shadow-sm overflow-hidden ${dm ? 'bg-gray-800/50 border-gray-700' : 'bg-white border-gray-200'}`}>
+              <div className={`flex items-center justify-between px-5 py-4 border-b ${dm ? 'border-gray-700' : 'border-gray-100'}`}>
+                <h3 className={`text-sm font-bold text-gray-900 flex items-center gap-2 ${dm ? 'text-white' : ''}`}><Icons.BarChart3 /> Top Performers</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className={`border-b ${dm ? 'bg-gray-700 border-gray-700' : 'bg-gray-50 border-gray-100'}`}>
+                    <tr>
+                      <th className={`px-5 py-3 text-left text-xs font-bold uppercase tracking-wider ${dm ? 'text-gray-400' : 'text-gray-500'}`}>Rank</th>
+                      <th className={`px-5 py-3 text-left text-xs font-bold uppercase tracking-wider ${dm ? 'text-gray-400' : 'text-gray-500'}`}>Employee</th>
+                      <th className={`px-5 py-3 text-left text-xs font-bold uppercase tracking-wider ${dm ? 'text-gray-400' : 'text-gray-500'}`}>Productivity</th>
+                      <th className={`px-5 py-3 text-left text-xs font-bold uppercase tracking-wider ${dm ? 'text-gray-400' : 'text-gray-500'}`}>Active Time</th>
+                      <th className={`px-5 py-3 text-left text-xs font-bold uppercase tracking-wider ${dm ? 'text-gray-400' : 'text-gray-500'}`}>Apps Used</th>
+                      <th className={`px-5 py-3 text-left text-xs font-bold uppercase tracking-wider ${dm ? 'text-gray-400' : 'text-gray-500'}`}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${dm ? 'divide-gray-700' : 'divide-gray-100'}`}>
+                    {employees
+                      .map((emp) => {
+                        const report = employeeReports[emp.id];
+                        const totalActive = report?.total_active_seconds || 0;
+                        const totalIdle = report?.total_idle_seconds || 0;
+                        const prod = getProductivityScore(totalActive, totalIdle);
+                        const appsCount = report?.apps?.length || 0;
+                        const empFraud = fraudAlerts.find(a => a.user_id === emp.id);
+                        return { emp, prod, totalActive, appsCount, fraud: empFraud };
+                      })
+                      .sort((a, b) => b.prod - a.prod)
+                      .map(({ emp, prod, totalActive, appsCount, fraud }, idx) => (
+                        <tr key={emp.id} className={`transition-colors ${dm ? 'border-gray-700 hover:bg-gray-700/50' : 'border-gray-100 hover:bg-gray-50'}`}>
+                          <td className="px-5 py-3.5">
+                            <div className="text-center">
+                              <div className="text-lg font-extrabold w-8 h-8 rounded-full flex items-center justify-center" style={{ background: idx < 3 ? (idx === 0 ? '#FFD700' : idx === 1 ? '#C0C0C0' : '#CD7F32') : (dm ? '#444' : '#E5E7EB'), color: idx < 3 ? '#000' : (dm ? '#999' : '#6F6F6F') }}>
+                                {idx + 1}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs" style={{ background: getAvatarColor(emp.name).bg, color: getAvatarColor(emp.name).text }}>{getInitials(emp.name)}</div>
+                              <div>
+                                <div className={`font-semibold text-sm ${dm ? 'text-white' : 'text-gray-900'}`}>{emp.name}</div>
+                                <div className={`text-xs ${dm ? 'text-gray-400' : 'text-gray-500'}`}>{emp.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-2">
+                              <div className="text-lg font-extrabold font-mono-custom" style={{ color: prod >= 70 ? '#198038' : prod >= 50 ? '#B28600' : '#DA1E28' }}>{prod}%</div>
+                              <div className={`h-1.5 w-24 rounded-full overflow-hidden ${dm ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                                <div className="h-full rounded-full transition-all" style={{ width: `${prod}%`, background: prod >= 70 ? '#198038' : prod >= 50 ? '#B28600' : '#DA1E28' }} />
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-5 py-3.5">
+                            <div className={`text-sm font-semibold ${dm ? 'text-gray-300' : 'text-gray-700'}`}>{formatDuration(totalActive) || '0m'}</div>
+                          </td>
+                          <td className="px-5 py-3.5">
+                            <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${dm ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                              <div className={`w-2 h-2 rounded-full ${dm ? 'bg-gray-500' : 'bg-gray-400'}`} />
+                              <span className={`text-xs font-semibold ${dm ? 'text-gray-300' : 'text-gray-700'}`}>{appsCount} apps</span>
+                            </div>
+                          </td>
+                          <td className="px-5 py-3.5">
+                            {fraud ? (
+                              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 rounded-lg border border-red-200">
+                                <Icons.Alert />
+                                <span className="text-xs font-bold text-red-700">{fraud.severity}</span>
+                              </div>
+                            ) : (
+                              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-50 rounded-lg border border-green-200">
+                                <Icons.Check />
+                                <span className="text-xs font-bold text-green-700">Clear</span>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         ) : activeTab === 'employees' && isAdmin ? (
           <div className="p-8 pt-6 space-y-6 animate-fade-in">
             <PendingApprovals users={pendingUsers} onApprove={handleApprove} onReject={handleReject} loading={actionLoading} dm={dm}/>
@@ -2047,6 +2188,24 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
                 <div style={{ height: 260 }}><ResponsiveContainer><BarChart data={analytics.topApps.slice(0,6)} layout="vertical" margin={{ left: 0, right: 10 }}><CartesianGrid strokeDasharray="3 3" stroke={dm?'#2D3748':'#F4F4F4'} horizontal={false}/><XAxis type="number" tick={{ fill: dm?'#9CA3AF':'#6B7280', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v:number) => formatDuration(v)}/><YAxis type="category" dataKey="name" tick={{ fill: dm?'#D1D5DB':'#161616', fontSize: 11, fontWeight: 600 }} axisLine={false} tickLine={false} width={80}/><Tooltip content={<ChartTooltip/>}/><Bar dataKey="value" name="Time" radius={[0,6,6,0]} barSize={16}>{analytics.topApps.slice(0,6).map((e,i) => <Cell key={i} fill={e.fill}/>)}</Bar></BarChart></ResponsiveContainer></div>
               </Card>
             </div>
+            <Card title="Active vs Idle Time — Per Employee" icon={<Icons.BarChart3/>} dm={dm}>
+              <div style={{ height: 300 }}>
+                <ResponsiveContainer>
+                  <BarChart data={employees.map(emp => {
+                    const r = employeeReports[emp.id];
+                    return { name: emp.name.split(' ')[0], active: r?.total_active_seconds || 0, idle: r?.total_idle_seconds || 0 };
+                  })} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={dm?'#2D3748':'#F4F4F4'} vertical={false} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: dm?'#9CA3AF':'#6F6F6F' }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: dm?'#9CA3AF':'#6F6F6F' }} axisLine={false} tickLine={false} tickFormatter={(v) => formatDuration(v)} width={55} />
+                    <Tooltip content={<ChartTooltip />} />
+                    <Bar dataKey="active" name="Active" fill="#0F62FE" radius={[4, 4, 0, 0]} barSize={24} />
+                    <Bar dataKey="idle" name="Idle" fill={dm?'#444':'#E0E0E0'} radius={[4, 4, 0, 0]} barSize={24} />
+                    <Legend iconType="circle" iconSize={8} formatter={(v: string) => <span className={`text-xs ${dm?'text-gray-400':'text-gray-700'}`}>{v}</span>} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </Card>
             <div className="grid grid-cols-3 gap-5">
               <Card title="Security Alerts" icon={<Icons.Shield/>} className="col-span-1" dm={dm}><FraudAlertPanel alerts={fraudAlerts}/></Card>
               <Card title="Employee Activity" icon={<Icons.Eye/>} className="col-span-2" dm={dm}>
