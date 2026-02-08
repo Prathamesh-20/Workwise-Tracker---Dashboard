@@ -1803,6 +1803,141 @@ function exportCSV(employees: UserInfo[], reports: Record<string, DailyReport>, 
   const a = document.createElement('a'); a.href = url; a.download = `workwise-${dateLabel}-${getLocalDateString(new Date())}.csv`; a.click(); URL.revokeObjectURL(url);
 }
 
+// Simple client-side PDF export (opens printable window)
+function exportCurrentDashboardAsPDF() {
+  // Prefer advanced capture using html2canvas + jsPDF; fall back to print window
+  (async () => {
+    try {
+      const el = document.getElementById('dashboard-root');
+      if (!el) return alert('Dashboard element not found');
+
+      // dynamic import so app can still build if deps not installed yet
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+
+      // capture at a higher scale for better quality
+      const scale = 2;
+      const canvas = await html2canvas(el as HTMLElement, { scale, useCORS: true, logging: false, scrollY: -window.scrollY });
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      // calculate image display size in mm
+      const imgProps = (pdf as any).getImageProperties ? (pdf as any).getImageProperties(imgData) : { width: canvas.width, height: canvas.height };
+      const imgWidthMm = pdfWidth;
+      const imgHeightMm = (imgProps.height * imgWidthMm) / imgProps.width;
+
+      if (imgHeightMm <= pdfHeight) {
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidthMm, imgHeightMm);
+      } else {
+        // multi-page: slice the canvas vertically per page height
+        const pxPerMm = canvas.width / imgWidthMm;
+        const pageHeightPx = Math.floor(pdfHeight * pxPerMm);
+        let y = 0;
+        while (y < canvas.height) {
+          const slice = document.createElement('canvas');
+          slice.width = canvas.width;
+          slice.height = Math.min(pageHeightPx, canvas.height - y);
+          const ctx = slice.getContext('2d')!;
+          ctx.drawImage(canvas, 0, y, canvas.width, slice.height, 0, 0, canvas.width, slice.height);
+          const sliceData = slice.toDataURL('image/jpeg', 0.95);
+          const sliceHeightMm = (slice.height * imgWidthMm) / canvas.width;
+          pdf.addImage(sliceData, 'JPEG', 0, 0, imgWidthMm, sliceHeightMm);
+          y += slice.height;
+          if (y < canvas.height) pdf.addPage();
+        }
+      }
+
+      pdf.save(`workwise-dashboard-${getLocalDateString(new Date())}.pdf`);
+    } catch (err) {
+      console.warn('Advanced PDF export failed, falling back to print', err);
+      try {
+        const el = document.getElementById('dashboard-root');
+        if (!el) return alert('Dashboard element not found');
+        const w = window.open('', '_blank');
+        if (!w) return alert('Unable to open print window');
+        const head = document.querySelector('head')?.innerHTML || '';
+        w.document.write(`<html><head>${head}<title>Workwise Dashboard Export</title></head><body style="margin:16px">`);
+        w.document.write(el.innerHTML);
+        w.document.write('</body></html>');
+        w.document.close();
+        setTimeout(() => { w.focus(); w.print(); }, 500);
+      } catch (e) { console.error('Export failed', e); alert('Export failed'); }
+    }
+  })();
+}
+
+function exportDashboardByRange(from: string, to: string) {
+  (async () => {
+    try {
+      if (!from || !to) return alert('Please select a valid date range');
+      const el = document.getElementById('dashboard-root');
+      if (!el) return alert('Dashboard element not found');
+
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
+
+      // attach a temporary header to the DOM for rendering
+      const header = document.createElement('div');
+      header.style.padding = '8px 0';
+      header.innerHTML = `<h2 style="font-family: Arial, Helvetica, sans-serif;">Workwise Dashboard Report (${from} → ${to})</h2>`;
+      el.prepend(header);
+
+      const scale = 2;
+      const canvas = await html2canvas(el as HTMLElement, { scale, useCORS: true, logging: false, scrollY: -window.scrollY });
+      // remove header
+      header.remove();
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgProps = (pdf as any).getImageProperties ? (pdf as any).getImageProperties(imgData) : { width: canvas.width, height: canvas.height };
+      const imgWidthMm = pdfWidth;
+      const imgHeightMm = (imgProps.height * imgWidthMm) / imgProps.width;
+
+      if (imgHeightMm <= pdfHeight) {
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidthMm, imgHeightMm);
+      } else {
+        const pxPerMm = canvas.width / imgWidthMm;
+        const pageHeightPx = Math.floor(pdfHeight * pxPerMm);
+        let y = 0;
+        while (y < canvas.height) {
+          const slice = document.createElement('canvas');
+          slice.width = canvas.width;
+          slice.height = Math.min(pageHeightPx, canvas.height - y);
+          const ctx = slice.getContext('2d')!;
+          ctx.drawImage(canvas, 0, y, canvas.width, slice.height, 0, 0, canvas.width, slice.height);
+          const sliceData = slice.toDataURL('image/jpeg', 0.95);
+          const sliceHeightMm = (slice.height * imgWidthMm) / canvas.width;
+          pdf.addImage(sliceData, 'JPEG', 0, 0, imgWidthMm, sliceHeightMm);
+          y += slice.height;
+          if (y < canvas.height) pdf.addPage();
+        }
+      }
+
+      pdf.save(`workwise-report-${from}_to_${to}.pdf`);
+    } catch (err) {
+      console.warn('Advanced range export failed, falling back to print', err);
+      try {
+        if (!from || !to) return alert('Please select a valid date range');
+        const w = window.open('', '_blank');
+        if (!w) return alert('Unable to open print window');
+        const head = document.querySelector('head')?.innerHTML || '';
+        w.document.write(`<html><head>${head}<title>Workwise Dashboard Export ${from} to ${to}</title></head><body style="margin:16px">`);
+        const el = document.getElementById('dashboard-root');
+        w.document.write(`<h2>Workwise Dashboard Report (${from} → ${to})</h2>`);
+        if (el) w.document.write(el.innerHTML);
+        w.document.write('</body></html>');
+        w.document.close();
+        setTimeout(() => { w.focus(); w.print(); }, 600);
+      } catch (e) { console.error('Export failed', e); alert('Export failed'); }
+    }
+  })();
+}
+
 // ============================================================
 // REPORTS TAB
 // ============================================================
@@ -2048,7 +2183,7 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
         </div>
       </aside>
 
-      <main className="flex-1 ml-[250px] min-h-screen flex flex-col">
+      <main id="dashboard-root" className="flex-1 ml-[250px] min-h-screen flex flex-col">
         <header className="flex justify-between items-center px-8 pt-6 pb-0">
           <div>
             <h1 className={`text-2xl font-extrabold tracking-tight ${dm ? 'text-white' : 'text-gray-900'}`}>
@@ -2300,21 +2435,38 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
                 </div>
 
                 {selectedEmployee && comparisonEmployee && (
-                  <div className="grid grid-cols-4 gap-3">
-                    {[
-                      { label: 'Active Time', getVal: (r: DailyReport | null) => formatDuration(r?.total_active_seconds || 0) },
-                      { label: 'Idle Time', getVal: (r: DailyReport | null) => formatDuration(r?.total_idle_seconds || 0) },
-                      { label: 'Apps Used', getVal: (r: DailyReport | null) => String(r?.apps?.length || 0) },
-                      { label: 'Productivity', getVal: (r: DailyReport | null) => `${getProductivityScore(r?.total_active_seconds || 0, r?.total_idle_seconds || 0)}%` }
-                    ].map((metric, i) => (
-                      <div key={i} className={`border rounded-lg p-3 ${dm?'bg-gray-700 border-gray-600':'bg-gray-50 border-gray-200'}`}>
-                        <div className={`text-xs font-semibold uppercase tracking-wider ${dm?'text-gray-400':'text-gray-500'} mb-2`}>{metric.label}</div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className={`${dm?'text-gray-300':'text-gray-700'} font-semibold`}>{metric.getVal(employeeReports[selectedEmployee.id])}</div>
-                          <div className={`${dm?'text-gray-300':'text-gray-700'} font-semibold`}>{metric.getVal(employeeReports[comparisonEmployee.id])}</div>
-                        </div>
+                  <div>
+                    <div style={{ height: 260 }}>
+                      <ResponsiveContainer>
+                        <BarChart data={[
+                          { name: selectedEmployee.name.split(' ')[0], active: employeeReports[selectedEmployee.id]?.total_active_seconds || 0, idle: employeeReports[selectedEmployee.id]?.total_idle_seconds || 0 },
+                          { name: comparisonEmployee.name.split(' ')[0], active: employeeReports[comparisonEmployee.id]?.total_active_seconds || 0, idle: employeeReports[comparisonEmployee.id]?.total_idle_seconds || 0 }
+                        ]} margin={{ top: 8, right: 20, left: 0, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke={dm ? '#2D3748' : '#F4F4F4'} vertical={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 12, fill: dm ? '#9CA3AF' : '#6F6F6F' }} axisLine={false} tickLine={false} />
+                          <YAxis tick={{ fontSize: 11, fill: dm ? '#9CA3AF' : '#6F6F6F' }} axisLine={false} tickLine={false} tickFormatter={(v) => formatDuration(v)} width={70} />
+                          <Tooltip content={<ChartTooltip />} />
+                          <Bar dataKey="active" name="Active" fill="#0F62FE" radius={[4,4,0,0]} barSize={26} />
+                          <Bar dataKey="idle" name="Idle" fill="#E0E0E0" radius={[4,4,0,0]} barSize={26} />
+                          <Legend iconType="circle" iconSize={8} formatter={(v: string) => <span className="text-xs text-gray-700">{v}</span>} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 mt-4">
+                      <div className={`border rounded-lg p-3 ${dm?'bg-gray-700 border-gray-600':'bg-gray-50 border-gray-200'}`}>
+                        <div className={`text-xs font-semibold uppercase tracking-wider ${dm?'text-gray-400':'text-gray-500'} mb-2`}>Summary — {selectedEmployee.name}</div>
+                        <div className={`${dm?'text-gray-300':'text-gray-700'} font-semibold`}>Active: {formatDuration(employeeReports[selectedEmployee.id]?.total_active_seconds || 0)}</div>
+                        <div className={`${dm?'text-gray-300':'text-gray-700'} font-semibold`}>Idle: {formatDuration(employeeReports[selectedEmployee.id]?.total_idle_seconds || 0)}</div>
+                        <div className={`${dm?'text-gray-300':'text-gray-700'} font-semibold`}>Apps: {employeeReports[selectedEmployee.id]?.apps?.length || 0}</div>
                       </div>
-                    ))}
+                      <div className={`border rounded-lg p-3 ${dm?'bg-gray-700 border-gray-600':'bg-gray-50 border-gray-200'}`}>
+                        <div className={`text-xs font-semibold uppercase tracking-wider ${dm?'text-gray-400':'text-gray-500'} mb-2`}>Summary — {comparisonEmployee.name}</div>
+                        <div className={`${dm?'text-gray-300':'text-gray-700'} font-semibold`}>Active: {formatDuration(employeeReports[comparisonEmployee.id]?.total_active_seconds || 0)}</div>
+                        <div className={`${dm?'text-gray-300':'text-gray-700'} font-semibold`}>Idle: {formatDuration(employeeReports[comparisonEmployee.id]?.total_idle_seconds || 0)}</div>
+                        <div className={`${dm?'text-gray-300':'text-gray-700'} font-semibold`}>Apps: {employeeReports[comparisonEmployee.id]?.apps?.length || 0}</div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -2431,16 +2583,16 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
                 <div className={`p-3 border rounded-lg ${dm?'bg-gray-700/30 border-gray-600':'bg-blue-50 border-blue-200'}`}>
                   <div className={`font-semibold text-sm mb-2 ${dm?'text-blue-400':'text-blue-900'}`}>Export Current Dashboard</div>
                   <div className={`text-xs mb-3 ${dm?'text-gray-400':'text-blue-800'}`}>Download the current dashboard view with all charts and metrics as PDF</div>
-                  <button className={`w-full py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-blue-600 hover:bg-blue-700':'bg-blue-500 hover:bg-blue-600'}`}>📥 Export as PDF</button>
+                  <button onClick={() => exportCurrentDashboardAsPDF()} className={`w-full py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-blue-600 hover:bg-blue-700':'bg-blue-500 hover:bg-blue-600'}`}>📥 Export as PDF</button>
                 </div>
                 <div className={`p-3 border rounded-lg ${dm?'bg-gray-700/30 border-gray-600':'bg-blue-50 border-blue-200'}`}>
                   <div className={`font-semibold text-sm mb-2 ${dm?'text-blue-400':'text-blue-900'}`}>Export by Date Range</div>
                   <div className={`text-xs mb-3 ${dm?'text-gray-400':'text-blue-800'}`}>Select a date range and generate a comprehensive PDF report</div>
                   <div className="grid grid-cols-2 gap-2 mb-3">
-                    <input type="date" className={`px-3 py-2 rounded-lg text-sm border ${dm?'bg-gray-700 border-gray-600 text-white':'bg-white border-gray-200 text-gray-900'}`} />
-                    <input type="date" className={`px-3 py-2 rounded-lg text-sm border ${dm?'bg-gray-700 border-gray-600 text-white':'bg-white border-gray-200 text-gray-900'}`} />
+                    <input id="export-from" type="date" className={`px-3 py-2 rounded-lg text-sm border ${dm?'bg-gray-700 border-gray-600 text-white':'bg-white border-gray-200 text-gray-900'}`} />
+                    <input id="export-to" type="date" className={`px-3 py-2 rounded-lg text-sm border ${dm?'bg-gray-700 border-gray-600 text-white':'bg-white border-gray-200 text-gray-900'}`} />
                   </div>
-                  <button className={`w-full py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-blue-600 hover:bg-blue-700':'bg-blue-500 hover:bg-blue-600'}`}>📥 Generate Report</button>
+                  <button onClick={() => exportDashboardByRange((document.getElementById('export-from') as HTMLInputElement)?.value, (document.getElementById('export-to') as HTMLInputElement)?.value)} className={`w-full py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-blue-600 hover:bg-blue-700':'bg-blue-500 hover:bg-blue-600'}`}>📥 Generate Report</button>
                 </div>
               </div>
             </Card>
