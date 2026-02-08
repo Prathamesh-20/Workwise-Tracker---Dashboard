@@ -1803,139 +1803,153 @@ function exportCSV(employees: UserInfo[], reports: Record<string, DailyReport>, 
   const a = document.createElement('a'); a.href = url; a.download = `workwise-${dateLabel}-${getLocalDateString(new Date())}.csv`; a.click(); URL.revokeObjectURL(url);
 }
 
-// Simple client-side PDF export (opens printable window)
-function exportCurrentDashboardAsPDF() {
-  // Prefer advanced capture using html2canvas + jsPDF; fall back to print window
-  (async () => {
-    try {
-      const el = document.getElementById('dashboard-root');
-      if (!el) return alert('Dashboard element not found');
-
-      // dynamic import so app can still build if deps not installed yet
-      const html2canvas = (await import('html2canvas')).default;
-      const { jsPDF } = await import('jspdf');
-
-      // capture at a higher scale for better quality
-      const scale = 2;
-      const canvas = await html2canvas(el as HTMLElement, { scale, useCORS: true, logging: false, scrollY: -window.scrollY });
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      // calculate image display size in mm
-      const imgProps = (pdf as any).getImageProperties ? (pdf as any).getImageProperties(imgData) : { width: canvas.width, height: canvas.height };
-      const imgWidthMm = pdfWidth;
-      const imgHeightMm = (imgProps.height * imgWidthMm) / imgProps.width;
-
-      if (imgHeightMm <= pdfHeight) {
-        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidthMm, imgHeightMm);
-      } else {
-        // multi-page: slice the canvas vertically per page height
-        const pxPerMm = canvas.width / imgWidthMm;
-        const pageHeightPx = Math.floor(pdfHeight * pxPerMm);
-        let y = 0;
-        while (y < canvas.height) {
-          const slice = document.createElement('canvas');
-          slice.width = canvas.width;
-          slice.height = Math.min(pageHeightPx, canvas.height - y);
-          const ctx = slice.getContext('2d')!;
-          ctx.drawImage(canvas, 0, y, canvas.width, slice.height, 0, 0, canvas.width, slice.height);
-          const sliceData = slice.toDataURL('image/jpeg', 0.95);
-          const sliceHeightMm = (slice.height * imgWidthMm) / canvas.width;
-          pdf.addImage(sliceData, 'JPEG', 0, 0, imgWidthMm, sliceHeightMm);
-          y += slice.height;
-          if (y < canvas.height) pdf.addPage();
-        }
-      }
-
-      pdf.save(`workwise-dashboard-${getLocalDateString(new Date())}.pdf`);
-    } catch (err) {
-      console.warn('Advanced PDF export failed, falling back to print', err);
-      try {
-        const el = document.getElementById('dashboard-root');
-        if (!el) return alert('Dashboard element not found');
-        const w = window.open('', '_blank');
-        if (!w) return alert('Unable to open print window');
-        const head = document.querySelector('head')?.innerHTML || '';
-        w.document.write(`<html><head>${head}<title>Workwise Dashboard Export</title></head><body style="margin:16px">`);
-        w.document.write(el.innerHTML);
-        w.document.write('</body></html>');
-        w.document.close();
-        setTimeout(() => { w.focus(); w.print(); }, 500);
-      } catch (e) { console.error('Export failed', e); alert('Export failed'); }
-    }
-  })();
+// Export current dashboard as PNG image
+async function exportCurrentDashboardAsPNG(): Promise<void> {
+  try {
+    const el = document.getElementById('dashboard-analytics');
+    if (!el) throw new Error('Dashboard element not found');
+    const html2canvas = (await import('html2canvas')).default;
+    const canvas = await html2canvas(el as HTMLElement, { scale: 2, useCORS: true, logging: false, scrollY: -window.scrollY });
+    const data = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = data;
+    a.download = `workwise-dashboard-${getLocalDateString(new Date())}.png`;
+    a.click();
+  } catch (e) {
+    console.error('PNG export failed', e);
+    throw e;
+  }
 }
 
-function exportDashboardByRange(from: string, to: string) {
-  (async () => {
-    try {
-      if (!from || !to) return alert('Please select a valid date range');
-      const el = document.getElementById('dashboard-root');
-      if (!el) return alert('Dashboard element not found');
+// Simple client-side PDF export (opens printable window)
+async function exportCurrentDashboardAsPDF(): Promise<void> {
+  // Prefer advanced capture using html2canvas + jsPDF; fall back to print window
+  try {
+    const el = document.getElementById('dashboard-analytics');
+    if (!el) throw new Error('Dashboard element not found');
 
-      const html2canvas = (await import('html2canvas')).default;
-      const { jsPDF } = await import('jspdf');
+    // dynamic import so app can still build if deps not installed yet
+    const html2canvas = (await import('html2canvas')).default;
+    const { jsPDF } = await import('jspdf');
 
-      // attach a temporary header to the DOM for rendering
-      const header = document.createElement('div');
-      header.style.padding = '8px 0';
-      header.innerHTML = `<h2 style="font-family: Arial, Helvetica, sans-serif;">Workwise Dashboard Report (${from} → ${to})</h2>`;
-      el.prepend(header);
+    // capture at a higher scale for better quality
+    const scale = 2;
+    const canvas = await html2canvas(el as HTMLElement, { scale, useCORS: true, logging: false, scrollY: -window.scrollY });
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
-      const scale = 2;
-      const canvas = await html2canvas(el as HTMLElement, { scale, useCORS: true, logging: false, scrollY: -window.scrollY });
-      // remove header
-      header.remove();
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgProps = (pdf as any).getImageProperties ? (pdf as any).getImageProperties(imgData) : { width: canvas.width, height: canvas.height };
-      const imgWidthMm = pdfWidth;
-      const imgHeightMm = (imgProps.height * imgWidthMm) / imgProps.width;
+    // calculate image display size in mm
+    const imgProps = (pdf as any).getImageProperties ? (pdf as any).getImageProperties(imgData) : { width: canvas.width, height: canvas.height };
+    const imgWidthMm = pdfWidth;
+    const imgHeightMm = (imgProps.height * imgWidthMm) / imgProps.width;
 
-      if (imgHeightMm <= pdfHeight) {
-        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidthMm, imgHeightMm);
-      } else {
-        const pxPerMm = canvas.width / imgWidthMm;
-        const pageHeightPx = Math.floor(pdfHeight * pxPerMm);
-        let y = 0;
-        while (y < canvas.height) {
-          const slice = document.createElement('canvas');
-          slice.width = canvas.width;
-          slice.height = Math.min(pageHeightPx, canvas.height - y);
-          const ctx = slice.getContext('2d')!;
-          ctx.drawImage(canvas, 0, y, canvas.width, slice.height, 0, 0, canvas.width, slice.height);
-          const sliceData = slice.toDataURL('image/jpeg', 0.95);
-          const sliceHeightMm = (slice.height * imgWidthMm) / canvas.width;
-          pdf.addImage(sliceData, 'JPEG', 0, 0, imgWidthMm, sliceHeightMm);
-          y += slice.height;
-          if (y < canvas.height) pdf.addPage();
-        }
+    if (imgHeightMm <= pdfHeight) {
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidthMm, imgHeightMm);
+    } else {
+      // multi-page: slice the canvas vertically per page height
+      const pxPerMm = canvas.width / imgWidthMm;
+      const pageHeightPx = Math.floor(pdfHeight * pxPerMm);
+      let y = 0;
+      while (y < canvas.height) {
+        const slice = document.createElement('canvas');
+        slice.width = canvas.width;
+        slice.height = Math.min(pageHeightPx, canvas.height - y);
+        const ctx = slice.getContext('2d')!;
+        ctx.drawImage(canvas, 0, y, canvas.width, slice.height, 0, 0, canvas.width, slice.height);
+        const sliceData = slice.toDataURL('image/jpeg', 0.95);
+        const sliceHeightMm = (slice.height * imgWidthMm) / canvas.width;
+        pdf.addImage(sliceData, 'JPEG', 0, 0, imgWidthMm, sliceHeightMm);
+        y += slice.height;
+        if (y < canvas.height) pdf.addPage();
       }
-
-      pdf.save(`workwise-report-${from}_to_${to}.pdf`);
-    } catch (err) {
-      console.warn('Advanced range export failed, falling back to print', err);
-      try {
-        if (!from || !to) return alert('Please select a valid date range');
-        const w = window.open('', '_blank');
-        if (!w) return alert('Unable to open print window');
-        const head = document.querySelector('head')?.innerHTML || '';
-        w.document.write(`<html><head>${head}<title>Workwise Dashboard Export ${from} to ${to}</title></head><body style="margin:16px">`);
-        const el = document.getElementById('dashboard-root');
-        w.document.write(`<h2>Workwise Dashboard Report (${from} → ${to})</h2>`);
-        if (el) w.document.write(el.innerHTML);
-        w.document.write('</body></html>');
-        w.document.close();
-        setTimeout(() => { w.focus(); w.print(); }, 600);
-      } catch (e) { console.error('Export failed', e); alert('Export failed'); }
     }
-  })();
+
+    pdf.save(`workwise-dashboard-${getLocalDateString(new Date())}.pdf`);
+  } catch (err) {
+    console.warn('Advanced PDF export failed, falling back to print', err);
+    try {
+      const el = document.getElementById('dashboard-analytics');
+      if (!el) throw new Error('Dashboard element not found');
+      const w = window.open('', '_blank');
+      if (!w) throw new Error('Unable to open print window');
+      const head = document.querySelector('head')?.innerHTML || '';
+      w.document.write(`<html><head>${head}<title>Workwise Dashboard Export</title></head><body style="margin:16px">`);
+      w.document.write(el.innerHTML);
+      w.document.write('</body></html>');
+      w.document.close();
+      setTimeout(() => { w.focus(); w.print(); }, 500);
+    } catch (e) { console.error('Export failed', e); throw e; }
+  }
+}
+
+async function exportDashboardByRange(from: string, to: string): Promise<void> {
+  try {
+    if (!from || !to) throw new Error('Please select a valid date range');
+    const el = document.getElementById('dashboard-analytics');
+    if (!el) throw new Error('Dashboard element not found');
+
+    const html2canvas = (await import('html2canvas')).default;
+    const { jsPDF } = await import('jspdf');
+
+    // attach a temporary header to the DOM for rendering
+    const header = document.createElement('div');
+    header.style.padding = '8px 0';
+    header.innerHTML = `<h2 style="font-family: Arial, Helvetica, sans-serif;">Workwise Dashboard Report (${from} → ${to})</h2>`;
+    el.prepend(header);
+
+    const scale = 2;
+    const canvas = await html2canvas(el as HTMLElement, { scale, useCORS: true, logging: false, scrollY: -window.scrollY });
+    // remove header
+    header.remove();
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgProps = (pdf as any).getImageProperties ? (pdf as any).getImageProperties(imgData) : { width: canvas.width, height: canvas.height };
+    const imgWidthMm = pdfWidth;
+    const imgHeightMm = (imgProps.height * imgWidthMm) / imgProps.width;
+
+    if (imgHeightMm <= pdfHeight) {
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidthMm, imgHeightMm);
+    } else {
+      const pxPerMm = canvas.width / imgWidthMm;
+      const pageHeightPx = Math.floor(pdfHeight * pxPerMm);
+      let y = 0;
+      while (y < canvas.height) {
+        const slice = document.createElement('canvas');
+        slice.width = canvas.width;
+        slice.height = Math.min(pageHeightPx, canvas.height - y);
+        const ctx = slice.getContext('2d')!;
+        ctx.drawImage(canvas, 0, y, canvas.width, slice.height, 0, 0, canvas.width, slice.height);
+        const sliceData = slice.toDataURL('image/jpeg', 0.95);
+        const sliceHeightMm = (slice.height * imgWidthMm) / canvas.width;
+        pdf.addImage(sliceData, 'JPEG', 0, 0, imgWidthMm, sliceHeightMm);
+        y += slice.height;
+        if (y < canvas.height) pdf.addPage();
+      }
+    }
+
+    pdf.save(`workwise-report-${from}_to_${to}.pdf`);
+  } catch (err) {
+    console.warn('Advanced range export failed, falling back to print', err);
+    try {
+      if (!from || !to) throw new Error('Please select a valid date range');
+      const w = window.open('', '_blank');
+      if (!w) throw new Error('Unable to open print window');
+      const head = document.querySelector('head')?.innerHTML || '';
+      w.document.write(`<html><head>${head}<title>Workwise Dashboard Export ${from} to ${to}</title></head><body style="margin:16px">`);
+      const el = document.getElementById('dashboard-analytics');
+      w.document.write(`<h2>Workwise Dashboard Report (${from} → ${to})</h2>`);
+      if (el) w.document.write(el.innerHTML);
+      w.document.write('</body></html>');
+      w.document.close();
+      setTimeout(() => { w.focus(); w.print(); }, 600);
+    } catch (e) { console.error('Export failed', e); throw e; }
+  }
 }
 
 // ============================================================
@@ -2077,6 +2091,33 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
   const [rangeDays, setRangeDays] = useState<number>(7);
   const isAdmin = user.role === 'admin';
   const dm = darkMode;
+
+  // Export state
+  const [exporting, setExporting] = useState(false);
+  const [exportLabel, setExportLabel] = useState('');
+
+  const handleExportCurrent = async () => {
+    setExporting(true); setExportLabel('Exporting PDF...');
+    try { await exportCurrentDashboardAsPDF(); alert('Export complete'); }
+    catch (e) { console.error(e); alert('Export failed'); }
+    finally { setExporting(false); setExportLabel(''); }
+  };
+
+  const handleExportRange = async () => {
+    const from = (document.getElementById('export-from') as HTMLInputElement)?.value;
+    const to = (document.getElementById('export-to') as HTMLInputElement)?.value;
+    setExporting(true); setExportLabel('Generating report...');
+    try { await exportDashboardByRange(from, to); alert('Report generated'); }
+    catch (e) { console.error(e); alert('Report generation failed'); }
+    finally { setExporting(false); setExportLabel(''); }
+  };
+
+  const handleExportPNG = async () => {
+    setExporting(true); setExportLabel('Exporting PNG...');
+    try { await exportCurrentDashboardAsPNG(); alert('PNG downloaded'); }
+    catch (e) { console.error(e); alert('PNG export failed'); }
+    finally { setExporting(false); setExportLabel(''); }
+  };
 
   const loadData = async () => {
     try {
@@ -2472,8 +2513,8 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
               </div>
             </Card>
           </div>
-        ) : activeTab === 'notifications-hub' && isAdmin ? (
-          <div className="p-8 pt-6 space-y-6 animate-fade-in">
+        ) : activeTab === 'dashboard' && isAdmin ? (
+          <div id="dashboard-analytics" className="p-8 pt-6 space-y-5 animate-fade-in">
             <div className="grid grid-cols-2 gap-5">
               <Card title="Real-Time Alerts" icon={<Icons.Alert/>} dm={dm}>
                 <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -2583,7 +2624,12 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
                 <div className={`p-3 border rounded-lg ${dm?'bg-gray-700/30 border-gray-600':'bg-blue-50 border-blue-200'}`}>
                   <div className={`font-semibold text-sm mb-2 ${dm?'text-blue-400':'text-blue-900'}`}>Export Current Dashboard</div>
                   <div className={`text-xs mb-3 ${dm?'text-gray-400':'text-blue-800'}`}>Download the current dashboard view with all charts and metrics as PDF</div>
-                  <button onClick={() => exportCurrentDashboardAsPDF()} className={`w-full py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-blue-600 hover:bg-blue-700':'bg-blue-500 hover:bg-blue-600'}`}>📥 Export as PDF</button>
+                  <button onClick={() => handleExportCurrent()} disabled={exporting} className={`w-full py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-blue-600 hover:bg-blue-700':'bg-blue-500 hover:bg-blue-600'}`}>
+                    {exporting ? (exportLabel || 'Exporting...') : '📥 Export as PDF'}
+                  </button>
+                  <button onClick={() => handleExportPNG()} disabled={exporting} className={`w-full mt-2 py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-gray-600 hover:bg-gray-700':'bg-gray-500 hover:bg-gray-600'}`}>
+                    {exporting ? (exportLabel || 'Exporting...') : '🖼️ Export as PNG'}
+                  </button>
                 </div>
                 <div className={`p-3 border rounded-lg ${dm?'bg-gray-700/30 border-gray-600':'bg-blue-50 border-blue-200'}`}>
                   <div className={`font-semibold text-sm mb-2 ${dm?'text-blue-400':'text-blue-900'}`}>Export by Date Range</div>
@@ -2592,7 +2638,9 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
                     <input id="export-from" type="date" className={`px-3 py-2 rounded-lg text-sm border ${dm?'bg-gray-700 border-gray-600 text-white':'bg-white border-gray-200 text-gray-900'}`} />
                     <input id="export-to" type="date" className={`px-3 py-2 rounded-lg text-sm border ${dm?'bg-gray-700 border-gray-600 text-white':'bg-white border-gray-200 text-gray-900'}`} />
                   </div>
-                  <button onClick={() => exportDashboardByRange((document.getElementById('export-from') as HTMLInputElement)?.value, (document.getElementById('export-to') as HTMLInputElement)?.value)} className={`w-full py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-blue-600 hover:bg-blue-700':'bg-blue-500 hover:bg-blue-600'}`}>📥 Generate Report</button>
+                  <button onClick={() => handleExportRange()} disabled={exporting} className={`w-full py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-blue-600 hover:bg-blue-700':'bg-blue-500 hover:bg-blue-600'}`}>
+                    {exporting ? (exportLabel || 'Generating...') : '📥 Generate Report'}
+                  </button>
                 </div>
               </div>
             </Card>
