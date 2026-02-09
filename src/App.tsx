@@ -1,248 +1,4 @@
-// import { useState, useEffect, useMemo } from 'react';
-// import { api } from './lib/api';
-// import type { UserInfo, DailyReport, FraudAlert } from './lib/api';
-// import companyLogo from './assets/company-logo.jpg';
-// import autonexLogo from './assets/autonex_ai_logo.jpg';
-// import {
-//   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-//   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-//   RadialBarChart, RadialBar, Legend
-// } from 'recharts';
-
-// // ============================================================
-// // CHART COLORS
-// // ============================================================
-// const CHART_PALETTE = [
-//   '#0F62FE', '#6929C4', '#1192E8', '#005D5D', '#9F1853',
-//   '#FA4D56', '#570408', '#198038', '#002D9C', '#EE5396',
-//   '#B28600', '#009D9A'
-// ];
-
-// // ============================================================
-// // ICONS
-// // ============================================================
-// const Icons = {
-//   Dashboard: () => (
-//     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
-//       <rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
-//     </svg>
-//   ),
-//   Users: () => (
-//     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-//       <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-//     </svg>
-//   ),
-//   Clock: () => (
-//     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-//     </svg>
-//   ),
-//   Alert: () => (
-//     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-//       <line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" />
-//     </svg>
-//   ),
-//   Check: () => (
-//     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-//       <polyline points="20 6 9 17 4 12" />
-//     </svg>
-//   ),
-//   X: () => (
-//     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-//       <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-//     </svg>
-//   ),
-//   Trash: () => (
-//     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <path d="M3 6h18" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-//     </svg>
-//   ),
-//   Logout: () => (
-//     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
-//     </svg>
-//   ),
-//   Eye: () => (
-//     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
-//     </svg>
-//   ),
-//   Activity: () => (
-//     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-//     </svg>
-//   ),
-//   BarChart3: () => (
-//     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <path d="M3 3v18h18" /><path d="M7 16V8" /><path d="M11 16V4" /><path d="M15 16v-5" /><path d="M19 16v-8" />
-//     </svg>
-//   ),
-//   Shield: () => (
-//     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-//     </svg>
-//   ),
-//   Zap: () => (
-//     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-//     </svg>
-//   ),
-//   Calendar: () => (
-//     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-//       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-//     </svg>
-//   ),
-//   Close: () => (
-//     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-//       <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-//     </svg>
-//   ),
-//   ChevronRight: ({ expanded }: { expanded: boolean }) => (
-//     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-//       style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0)', transition: 'transform 0.2s ease' }}>
-//       <polyline points="9 18 15 12 9 6" />
-//     </svg>
-//   ),
-// };
-
-// // ============================================================
-// // HELPERS
-// // ============================================================
-// function formatDuration(seconds: number): string {
-//   const hours = Math.floor(seconds / 3600);
-//   const mins = Math.floor((seconds % 3600) / 60);
-//   if (hours > 0) return `${hours}h ${mins}m`;
-//   return `${mins}m`;
-// }
-
-// function getInitials(name: string): string {
-//   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-// }
-
-// function getAvatarColor(name: string): { bg: string; text: string } {
-//   const colors = [
-//     { bg: '#D0E2FF', text: '#0043CE' },
-//     { bg: '#E8DAEF', text: '#6929C4' },
-//     { bg: '#BAE6FF', text: '#0058A1' },
-//     { bg: '#D9F0D3', text: '#198038' },
-//     { bg: '#FFD6E8', text: '#9F1853' },
-//     { bg: '#FFF1C9', text: '#8A6500' },
-//     { bg: '#FFD7D9', text: '#A2191F' },
-//     { bg: '#D4BBFF', text: '#491D8B' },
-//     { bg: '#B6F0E8', text: '#005D5D' },
-//     { bg: '#FFDDC1', text: '#8A3800' },
-//   ];
-//   let hash = 0;
-//   for (let i = 0; i < name.length; i++) {
-//     hash = name.charCodeAt(i) + ((hash << 5) - hash);
-//   }
-//   return colors[Math.abs(hash) % colors.length];
-// }
-
-// function getLocalDateString(date: Date): string {
-//   const year = date.getFullYear();
-//   const month = String(date.getMonth() + 1).padStart(2, '0');
-//   const day = String(date.getDate()).padStart(2, '0');
-//   return `${year}-${month}-${day}`;
-// }
-
-// function getProductivityScore(activeSeconds: number, idleSeconds: number): number {
-//   const total = activeSeconds + idleSeconds;
-//   if (total === 0) return 0;
-//   return Math.round((activeSeconds / total) * 100);
-// }
-
-// function getEfficiencyGrade(score: number): { grade: string; color: string; bg: string } {
-//   if (score >= 90) return { grade: 'A+', color: '#198038', bg: '#DEFBE6' };
-//   if (score >= 80) return { grade: 'A', color: '#198038', bg: '#DEFBE6' };
-//   if (score >= 70) return { grade: 'B+', color: '#0F62FE', bg: '#D0E2FF' };
-//   if (score >= 60) return { grade: 'B', color: '#0F62FE', bg: '#D0E2FF' };
-//   if (score >= 50) return { grade: 'C', color: '#B28600', bg: '#FFF8E1' };
-//   return { grade: 'D', color: '#DA1E28', bg: '#FFF1F1' };
-// }
-
-// // ============================================================
-// // CHART TOOLTIP
-// // ============================================================
-// function ChartTooltip({ active, payload, label }: any) {
-//   if (!active || !payload?.length) return null;
-//   return (
-//     <div className="bg-gray-900 text-white px-3.5 py-2.5 rounded-lg text-xs shadow-xl border-0">
-//       <div className="font-semibold mb-1 text-gray-400">{label}</div>
-//       {payload.map((p: any, i: number) => (
-//         <div key={i} className="flex items-center gap-1.5">
-//           <span className="w-2 h-2 rounded-full inline-block" style={{ background: p.color }} />
-//           <span className="text-gray-300">{p.name}:</span>
-//           <span className="font-semibold">{typeof p.value === 'number' && p.value > 300 ? formatDuration(p.value) : p.value}</span>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// }
-
-// // ============================================================
-// // PRODUCTIVITY GAUGE
-// // ============================================================
-// function ProductivityGauge({ score }: { score: number }) {
-//   const data = [{ name: 'Score', value: score, fill: score >= 70 ? '#0F62FE' : score >= 50 ? '#B28600' : '#DA1E28' }];
-//   const grade = getEfficiencyGrade(score);
-
-//   return (
-//     <div className="relative w-full" style={{ height: 180 }}>
-//       <ResponsiveContainer>
-//         <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="95%" startAngle={180} endAngle={0} data={data} barSize={14}>
-//           <RadialBar background={{ fill: '#F4F4F4' }} dataKey="value" cornerRadius={8} />
-//         </RadialBarChart>
-//       </ResponsiveContainer>
-//       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 text-center" style={{ transform: 'translate(-50%, -20%)' }}>
-//         <div className="text-4xl font-extrabold text-gray-900 tracking-tight">{score}%</div>
-//         <div className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold mt-1" style={{ background: grade.bg, color: grade.color }}>
-//           GRADE {grade.grade}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// // ============================================================
-// // TEAM HEATMAP
-// // ============================================================
-// function TeamHeatmap({ employees, reports }: { employees: UserInfo[]; reports: Record<string, DailyReport> }) {
-//   const hours = Array.from({ length: 12 }, (_, i) => i + 8);
-//   const hourLabels = hours.map(h => h <= 12 ? `${h}${h < 12 ? 'a' : 'p'}` : `${h - 12}p`);
-
-//   const heatmapData = employees.slice(0, 8).map(emp => {
-//     const report = reports[emp.id];
-//     const totalSecs = report?.total_active_seconds || 0;
-//     const avgPerHour = totalSecs / 9;
-//     return {
-//       name: emp.name.split(' ')[0],
-//       hours: hours.map(() => {
-//         if (totalSecs === 0) return 0;
-//         const variation = 0.4 + Math.random() * 1.2;
-//         return Math.min(1, (avgPerHour * variation) / 3600);
-//       })
-//     };
-//   });
-
-//   const getHeatColor = (intensity: number): string => {
-//     if (intensity === 0) return '#F4F4F4';
-//     if (intensity < 0.25) return '#D0E2FF';
-//     if (intensity < 0.5) return '#78A9FF';
-//     if (intensity < 0.75) return '#4589FF';
-//     return '#0F62FE';
-//   };
-
-//   return (
-//     <div className="overflow-x-auto">
-//       <div className="grid gap-0.5" style={{ gridTemplateColumns: `72px repeat(${hours.length}, 1fr)`, minWidth: 480 }}>
-//         <div />
-//         {hourLabels.map((label, i) => (
-//           <div key={i} className="text-center text-[10px] font-semibold text-gray-400 py-1">{label}</div>
-//         ))}
+import React from 'react';
 //         {heatmapData.map((row, ri) => (
 //           <div key={ri} className="contents">
 //             <div className="text-xs font-semibold text-gray-700 flex items-center pr-2 truncate">{row.name}</div>
@@ -303,167 +59,6 @@
 //         animation: 'gridScroll 20s linear infinite',
 //       }} />
 
-//       {/* Large glowing sphere — back layer */}
-//       <div className="absolute" style={{
-//         top: '15%', left: '50%', transform: 'translate(-50%, -50%)',
-//         width: 600, height: 600,
-//         background: 'radial-gradient(circle, rgba(15,98,254,0.2) 0%, rgba(15,98,254,0.05) 40%, transparent 65%)',
-//         borderRadius: '50%', pointerEvents: 'none',
-//         animation: 'breathe 6s ease-in-out infinite',
-//       }} />
-
-//       {/* Floating orb — left */}
-//       <div className="absolute" style={{
-//         top: '25%', left: '8%',
-//         width: 200, height: 200,
-//         background: 'radial-gradient(circle, rgba(105,41,196,0.25) 0%, transparent 70%)',
-//         borderRadius: '50%', pointerEvents: 'none',
-//         animation: 'floatOrb1 8s ease-in-out infinite',
-//         filter: 'blur(2px)',
-//       }} />
-
-//       {/* Floating orb — right */}
-//       <div className="absolute" style={{
-//         top: '60%', right: '5%',
-//         width: 250, height: 250,
-//         background: 'radial-gradient(circle, rgba(15,98,254,0.2) 0%, transparent 70%)',
-//         borderRadius: '50%', pointerEvents: 'none',
-//         animation: 'floatOrb2 10s ease-in-out infinite',
-//         filter: 'blur(2px)',
-//       }} />
-
-//       {/* Small accent orb — top right */}
-//       <div className="absolute" style={{
-//         top: '10%', right: '20%',
-//         width: 100, height: 100,
-//         background: 'radial-gradient(circle, rgba(59,130,246,0.35) 0%, transparent 70%)',
-//         borderRadius: '50%', pointerEvents: 'none',
-//         animation: 'floatOrb3 7s ease-in-out infinite',
-//       }} />
-
-//       {/* Glowing horizontal line */}
-//       <div className="absolute" style={{
-//         top: '48%', left: '10%', right: '10%', height: 1,
-//         background: 'linear-gradient(90deg, transparent 0%, rgba(15,98,254,0.15) 30%, rgba(15,98,254,0.3) 50%, rgba(15,98,254,0.15) 70%, transparent 100%)',
-//         pointerEvents: 'none',
-//         animation: 'linePulse 4s ease-in-out infinite',
-//       }} />
-
-//       {/* 3D Ring / ellipse behind card */}
-//       <div className="absolute" style={{
-//         top: '50%', left: '50%',
-//         width: 520, height: 520,
-//         transform: 'translate(-50%, -50%)',
-//         border: '1px solid rgba(15,98,254,0.1)',
-//         borderRadius: '50%',
-//         pointerEvents: 'none',
-//         animation: 'ringRotate 20s linear infinite',
-//       }}>
-//         <div className="absolute" style={{
-//           top: 0, left: '50%', transform: 'translate(-50%, -50%)',
-//           width: 6, height: 6, borderRadius: '50%',
-//           background: 'rgba(15,98,254,0.6)',
-//           boxShadow: '0 0 12px rgba(15,98,254,0.4)',
-//         }} />
-//       </div>
-
-//       {/* Second ring — offset */}
-//       <div className="absolute" style={{
-//         top: '50%', left: '50%',
-//         width: 440, height: 440,
-//         transform: 'translate(-50%, -50%) rotate(45deg)',
-//         border: '1px solid rgba(105,41,196,0.08)',
-//         borderRadius: '50%',
-//         pointerEvents: 'none',
-//         animation: 'ringRotate 25s linear infinite reverse',
-//       }} />
-
-//       {/* Floating particles */}
-//       {[...Array(12)].map((_, i) => (
-//         <div key={i} className="absolute rounded-full" style={{
-//           width: Math.random() * 3 + 1.5,
-//           height: Math.random() * 3 + 1.5,
-//           background: i % 3 === 0 ? 'rgba(105,41,196,0.5)' : 'rgba(15,98,254,0.4)',
-//           left: `${10 + Math.random() * 80}%`,
-//           top: `${10 + Math.random() * 80}%`,
-//           pointerEvents: 'none',
-//           boxShadow: `0 0 ${4 + Math.random() * 6}px ${i % 3 === 0 ? 'rgba(105,41,196,0.3)' : 'rgba(15,98,254,0.3)'}`,
-//           animation: `particleFloat${(i % 4) + 1} ${6 + Math.random() * 8}s ease-in-out infinite`,
-//           animationDelay: `${Math.random() * 5}s`,
-//         }} />
-//       ))}
-
-//       {/* Bottom light reflection */}
-//       <div className="absolute bottom-0 left-0 right-0 h-40" style={{
-//         background: 'linear-gradient(to top, rgba(15,98,254,0.08), transparent)',
-//         pointerEvents: 'none',
-//       }} />
-
-//       {/* === GLASS CARD === */}
-//       <div className="w-full max-w-md p-10 rounded-2xl relative z-10 border" style={{
-//         background: 'rgba(255,255,255,0.01)',
-//         backdropFilter: 'blur(40px)',
-//         WebkitBackdropFilter: 'blur(60px)',
-//         borderColor: 'rgba(255,255,255,0.06)',
-//         boxShadow: '0 32px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 60px rgba(15,98,254,0.03), 0 0 100px rgba(15,98,254,0.04)',
-//       }}>
-//         {/* Inner top highlight */}
-//         <div className="absolute top-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)' }} />
-
-//         <div className="text-center mb-8">
-//           {/* 3D Floating Logo with glow layers */}
-//           <div className="relative inline-block mb-5">
-//             <div className="absolute" style={{ inset: -20, borderRadius: 28, background: 'rgba(15,98,254,0.15)', filter: 'blur(30px)', animation: 'breathe 4s ease-in-out infinite' }} />
-//             <div className="absolute inset-0 rounded-2xl" style={{ background: 'rgba(15,98,254,0.35)', filter: 'blur(20px)', transform: 'translateY(12px) scale(0.8)' }} />
-//             <img src={autonexLogo} alt="Autonex" className="relative w-20 h-20 rounded-2xl object-cover" style={{
-//               boxShadow: '0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1), 0 0 30px rgba(15,98,254,0.15)',
-//               animation: 'float 4s ease-in-out infinite',
-//             }} />
-//             <div className="absolute top-0 left-0 w-full h-full rounded-2xl overflow-hidden pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%)' }} />
-//           </div>
-//           <div className="flex items-baseline justify-center gap-2">
-//             <h1 className="text-3xl font-extrabold text-white tracking-tight">Workwise</h1>
-             
-//              <span className="text-sm text-blue-300/50 font-medium">by Autonex</span>
-
-//           </div>
-//           <p className="text-sm font-semibold text-blue-200/70 mt-1.5">Employee Productivity Intelligence</p>
-//         </div>
-
-//         <form className="space-y-5" onSubmit={handleSubmit}>
-//           {error && (
-//             <div className="p-3 rounded-lg text-sm text-center font-medium text-red-300" style={{ background: 'rgba(218,30,40,0.15)', border: '1px solid rgba(218,30,40,0.25)' }}>{error}</div>
-//           )}
-//           <div className="space-y-1.5">
-//             <label className="text-xs font-semibold text-blue-200/70 uppercase tracking-wide">Email</label>
-//             <input type="email" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all"
-//               style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }}
-//               onFocus={(e) => { e.target.style.borderColor = 'rgba(15,98,254,0.4)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px rgba(15,98,254,0.1)'; }}
-//               onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2)'; }}
-//               placeholder="you@autonex.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-//           </div>
-//           <div className="space-y-1.5">
-//             <label className="text-xs font-semibold text-blue-200/70 uppercase tracking-wide">Password</label>
-//             <input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all"
-//               style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }}
-//               onFocus={(e) => { e.target.style.borderColor = 'rgba(15,98,254,0.4)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px rgba(15,98,254,0.1)'; }}
-//               onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2)'; }}
-//               placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
-//           </div>
-//           <button type="submit" disabled={loading}
-//             className="w-full py-3 text-white font-semibold text-sm rounded-lg transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden group"
-//             style={{ background: 'linear-gradient(135deg, #0F62FE, #3B82F6)', boxShadow: '0 8px 30px rgba(15,98,254,0.35), inset 0 1px 0 rgba(255,255,255,0.15)' }}>
-//             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)' }} />
-//             <span className="relative">{loading ? 'Signing in...' : 'Sign In'}</span>
-//           </button>
-//         </form>
-//         <div className="mt-6 text-center text-sm text-blue-200/30">
-//           Don't have an account?{' '}
-//           <a href="#" onClick={(e) => { e.preventDefault(); onShowRegister(); }} className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Register</a>
-//         </div>
-//       </div>
-//     </div>
-//   );
 // }
 
 // // ============================================================
@@ -1427,11 +1022,11 @@
 //         {/* ====== EMPLOYEES TAB ====== */}
 //         {activeTab === 'employees' && isAdmin && (
 //           <div className="p-8 pt-6 space-y-5 animate-fade-in">
-//             {pendingUsers.length > 0 && <PendingApprovals users={pendingUsers} onApprove={handleApprove} onReject={handleReject} loading={actionLoading} />}
+//             {pendingUsers.length > 0 && <PendingApprovals users={pendingUsers} onApprove={handleApprove} onReject={handleReject} loading={actionLoading} dm={dm} />}
 //             <EmployeeListView employees={employees} employeeReports={employeeReports}
-//               onViewDetails={(emp) => { setSelectedEmployee(emp); setShowDetailModal(true); }} onDelete={handleDelete} />
+//               onViewDetails={(emp) => { setSelectedEmployee(emp); setShowDetailModal(true); }} onDelete={handleDelete} dm={dm} />
 //             {showDetailModal && selectedEmployee && (
-//               <EmployeeDetailModal employee={selectedEmployee} onClose={() => { setShowDetailModal(false); setSelectedEmployee(null); }} />
+//               <EmployeeDetailModal employee={selectedEmployee} onClose={() => { setShowDetailModal(false); setSelectedEmployee(null); }} dm={dm} />
 //             )}
 //           </div>
 //         )}
@@ -1806,10 +1401,25 @@ function exportCSV(employees: UserInfo[], reports: Record<string, DailyReport>, 
 // Export current dashboard as PNG image
 async function exportCurrentDashboardAsPNG(): Promise<void> {
   try {
-    const el = document.getElementById('dashboard-analytics');
-    if (!el) throw new Error('Dashboard element not found');
+    // Target only the main dashboard analytics section
+    let el = document.getElementById('dashboard-analytics-export');
+    if (!el) throw new Error('Dashboard analytics element not found');
+    
+    // Store original visibility/display state
+    const originalDisplay = el.style.display;
+    const originalVisibility = el.style.visibility;
+    
+    // Temporarily ensure element is visible for capture
+    el.style.display = 'block';
+    el.style.visibility = 'visible';
+    
     const html2canvas = (await import('html2canvas')).default;
-    const canvas = await html2canvas(el as HTMLElement, { scale: 2, useCORS: true, logging: false, scrollY: -window.scrollY });
+    const canvas = await html2canvas(el as HTMLElement, { scale: 2, useCORS: true, logging: false, scrollY: -window.scrollY, scrollX: -window.scrollX });
+    
+    // Restore original state
+    el.style.display = originalDisplay;
+    el.style.visibility = originalVisibility;
+    
     const data = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = data;
@@ -1825,16 +1435,29 @@ async function exportCurrentDashboardAsPNG(): Promise<void> {
 async function exportCurrentDashboardAsPDF(): Promise<void> {
   // Prefer advanced capture using html2canvas + jsPDF; fall back to print window
   try {
-    const el = document.getElementById('dashboard-analytics');
-    if (!el) throw new Error('Dashboard element not found');
+    // Target only the main dashboard analytics section
+    let el = document.getElementById('dashboard-analytics-export');
+    if (!el) throw new Error('Dashboard analytics element not found');
 
     // dynamic import so app can still build if deps not installed yet
     const html2canvas = (await import('html2canvas')).default;
     const { jsPDF } = await import('jspdf');
 
+    // Store original visibility/display state
+    const originalDisplay = el.style.display;
+    const originalVisibility = el.style.visibility;
+    
+    // Temporarily ensure element is visible for capture
+    el.style.display = 'block';
+    el.style.visibility = 'visible';
+
     // capture at a higher scale for better quality
     const scale = 2;
-    const canvas = await html2canvas(el as HTMLElement, { scale, useCORS: true, logging: false, scrollY: -window.scrollY });
+    const canvas = await html2canvas(el as HTMLElement, { scale, useCORS: true, logging: false, scrollY: -window.scrollY, scrollX: -window.scrollX });
+    
+    // Restore original state
+    el.style.display = originalDisplay;
+    el.style.visibility = originalVisibility;
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -1871,8 +1494,8 @@ async function exportCurrentDashboardAsPDF(): Promise<void> {
   } catch (err) {
     console.warn('Advanced PDF export failed, falling back to print', err);
     try {
-      const el = document.getElementById('dashboard-analytics');
-      if (!el) throw new Error('Dashboard element not found');
+      const el = document.getElementById('dashboard-analytics-export');
+      if (!el) throw new Error('Dashboard analytics element not found');
       const w = window.open('', '_blank');
       if (!w) throw new Error('Unable to open print window');
       const head = document.querySelector('head')?.innerHTML || '';
@@ -1888,11 +1511,20 @@ async function exportCurrentDashboardAsPDF(): Promise<void> {
 async function exportDashboardByRange(from: string, to: string): Promise<void> {
   try {
     if (!from || !to) throw new Error('Please select a valid date range');
-    const el = document.getElementById('dashboard-analytics');
-    if (!el) throw new Error('Dashboard element not found');
+    // Target only the main dashboard analytics section
+    let el = document.getElementById('dashboard-analytics-export');
+    if (!el) throw new Error('Dashboard analytics element not found');
 
     const html2canvas = (await import('html2canvas')).default;
     const { jsPDF } = await import('jspdf');
+
+    // Store original visibility/display state
+    const originalDisplay = el.style.display;
+    const originalVisibility = el.style.visibility;
+    
+    // Temporarily ensure element is visible for capture
+    el.style.display = 'block';
+    el.style.visibility = 'visible';
 
     // attach a temporary header to the DOM for rendering
     const header = document.createElement('div');
@@ -1901,9 +1533,12 @@ async function exportDashboardByRange(from: string, to: string): Promise<void> {
     el.prepend(header);
 
     const scale = 2;
-    const canvas = await html2canvas(el as HTMLElement, { scale, useCORS: true, logging: false, scrollY: -window.scrollY });
-    // remove header
+    const canvas = await html2canvas(el as HTMLElement, { scale, useCORS: true, logging: false, scrollY: -window.scrollY, scrollX: -window.scrollX });
+    
+    // remove header and restore original state
     header.remove();
+    el.style.display = originalDisplay;
+    el.style.visibility = originalVisibility;
 
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -1942,7 +1577,7 @@ async function exportDashboardByRange(from: string, to: string): Promise<void> {
       if (!w) throw new Error('Unable to open print window');
       const head = document.querySelector('head')?.innerHTML || '';
       w.document.write(`<html><head>${head}<title>Workwise Dashboard Export ${from} to ${to}</title></head><body style="margin:16px">`);
-      const el = document.getElementById('dashboard-analytics');
+      const el = document.getElementById('dashboard-root');
       w.document.write(`<h2>Workwise Dashboard Report (${from} → ${to})</h2>`);
       if (el) w.document.write(el.innerHTML);
       w.document.write('</body></html>');
@@ -2086,7 +1721,7 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
   const [actionLoading, setActionLoading] = useState(false);
   const [weeklyData, setWeeklyData] = useState<any[]>([]);
   const [darkMode, setDarkMode] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<string>(() => { const d = new Date(); d.setDate(d.getDate() - 1); return getLocalDateString(d); });
+  const [selectedDate, setSelectedDate] = useState<string>(() => getLocalDateString(new Date()));
   const [viewMode, setViewMode] = useState<'date' | 'range'>('date');
   const [rangeDays, setRangeDays] = useState<number>(7);
   const isAdmin = user.role === 'admin';
@@ -2513,8 +2148,8 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
               </div>
             </Card>
           </div>
-        ) : activeTab === 'dashboard' && isAdmin ? (
-          <div id="dashboard-analytics" className="p-8 pt-6 space-y-5 animate-fade-in">
+        ) : activeTab === 'notifications-hub' && isAdmin ? (
+          <div className="p-8 pt-6 space-y-5 animate-fade-in">
             <div className="grid grid-cols-2 gap-5">
               <Card title="Real-Time Alerts" icon={<Icons.Alert/>} dm={dm}>
                 <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -2646,12 +2281,16 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
             </Card>
           </div>
         ) : activeTab === 'employees' && isAdmin ? (
-          <div className="p-8 pt-6 space-y-6 animate-fade-in">
-            <PendingApprovals users={pendingUsers} onApprove={handleApprove} onReject={handleReject} loading={actionLoading} dm={dm}/>
-            <EmployeeListView employees={employees} employeeReports={employeeReports} onViewDetails={(emp) => { setSelectedEmployee(emp); setShowDetailModal(true); }} onDelete={handleDelete} dm={dm}/>
+          <div className="p-8 pt-6 space-y-5 animate-fade-in">
+            {pendingUsers.length > 0 && <PendingApprovals users={pendingUsers} onApprove={handleApprove} onReject={handleReject} loading={actionLoading} dm={dm} />}
+            <EmployeeListView employees={employees} employeeReports={employeeReports}
+              onViewDetails={(emp) => { setSelectedEmployee(emp); setShowDetailModal(true); }} onDelete={handleDelete} dm={dm} />
+            {showDetailModal && selectedEmployee && (
+              <EmployeeDetailModal employee={selectedEmployee} onClose={() => { setShowDetailModal(false); setSelectedEmployee(null); }} />
+            )}
           </div>
-        ) : isAdmin ? (
-          <div className="p-8 pt-6 space-y-6 animate-fade-in">
+        ) : activeTab === 'dashboard' && isAdmin ? (
+          <div id="dashboard-analytics-export" className="p-8 pt-6 space-y-6 animate-fade-in">
             <div className="grid grid-cols-4 gap-4">
               <StatCard icon={<Icons.Users/>} label="Total Employees" value={employees.length} subtext={`${analytics.activeCount} active today`} color="#0F62FE" dm={dm}/>
               <StatCard icon={<Icons.Activity/>} label="Avg Active Time" value={formatDuration(analytics.avgActive)} subtext="Per employee today" color="#6929C4" dm={dm}/>
