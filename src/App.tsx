@@ -1987,7 +1987,7 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
               <StatCard icon={<Icons.Activity/>} label="Idle Time" value={formatDuration(employeeReport?.total_idle_seconds || 0)} color="#6929C4" dm={dm}/>
               <StatCard icon={<Icons.Zap/>} label="Productivity" value={`${getProductivityScore(employeeReport?.total_active_seconds||0, employeeReport?.total_idle_seconds||0)}%`} color="#198038" dm={dm}/>
             </div>
-            <Card title="My Application Usage" icon={<Icons.BarChart3/>} dm={dm}><AppUsageWithSubActivities report={employeeReport}/></Card>
+            <Card title="My Application Usage" icon={<Icons.BarChart3/>} dm={dm}><AppUsageList report={employeeReport}/></Card>
           </div>
         )}
       </main>
