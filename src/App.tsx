@@ -1830,7 +1830,6 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
     ...(isAdmin ? [{ id: 'employees' as const, label: 'Employees', icon: <Icons.Users/>, badge: pendingUsers.length }] : []),
     ...(isAdmin ? [{ id: 'advanced-analytics' as const, label: 'Advanced Analytics', icon: <Icons.BarChart3/> }] : []),
     ...(isAdmin ? [{ id: 'leaderboard' as const, label: 'Leaderboard', icon: <Icons.BarChart3/> }] : []),
-    ...(isAdmin ? [{ id: 'notifications-hub' as const, label: 'Notifications Hub', icon: <Icons.Alert/> }] : []),
     ...(isAdmin ? [{ id: 'reports' as const, label: 'Reports', icon: <Icons.FileText/> }] : []),
   ];
 
@@ -1863,10 +1862,10 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
         <header className="flex justify-between items-center px-8 pt-6 pb-0">
           <div>
             <h1 className={`text-2xl font-extrabold tracking-tight ${dm ? 'text-white' : 'text-gray-900'}`}>
-              {activeTab === 'dashboard' ? (isAdmin ? 'Team Dashboard' : 'My Dashboard') : activeTab === 'employees' ? 'Employee Management' : activeTab === 'advanced-analytics' ? 'Advanced Analytics' : activeTab === 'leaderboard' ? 'Leaderboard' : activeTab === 'notifications-hub' ? 'Notifications Hub' : 'Reports'}
+              {activeTab === 'dashboard' ? (isAdmin ? 'Team Dashboard' : 'My Dashboard') : activeTab === 'employees' ? 'Employee Management' : activeTab === 'advanced-analytics' ? 'Advanced Analytics' : activeTab === 'leaderboard' ? 'Leaderboard' : 'Reports'}
             </h1>
             <p className={`text-sm mt-0.5 ${dm ? 'text-gray-400' : 'text-gray-500'}`}>
-              {activeTab === 'dashboard' ? (isAdmin ? `${employees.length} employees tracked` : 'Your productivity overview') : activeTab === 'employees' ? `${employees.length} active employees` : activeTab === 'advanced-analytics' ? 'Deep insights into team productivity and app usage' : activeTab === 'leaderboard' ? 'Top performers by productivity score' : activeTab === 'notifications-hub' ? 'Alerts, email reports, and notifications' : 'Export productivity reports'}
+              {activeTab === 'dashboard' ? (isAdmin ? `${employees.length} employees tracked` : 'Your productivity overview') : activeTab === 'employees' ? `${employees.length} active employees` : activeTab === 'advanced-analytics' ? 'Deep insights into team productivity and app usage' : activeTab === 'leaderboard' ? 'Top performers by productivity score' : 'Export productivity reports'}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -2145,138 +2144,6 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
                     </div>
                   </div>
                 )}
-              </div>
-            </Card>
-          </div>
-        ) : activeTab === 'notifications-hub' && isAdmin ? (
-          <div className="p-8 pt-6 space-y-5 animate-fade-in">
-            <div className="grid grid-cols-2 gap-5">
-              <Card title="Real-Time Alerts" icon={<Icons.Alert/>} dm={dm}>
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {realTimeAlerts.length > 0 ? (
-                    realTimeAlerts.map((alert) => (
-                      <div key={alert.id} className={`p-3 rounded-lg border ${alert.severity === 'CRITICAL' ? (dm?'bg-red-900/20 border-red-700':'bg-red-50 border-red-200') : alert.severity === 'HIGH' ? (dm?'bg-orange-900/20 border-orange-700':'bg-orange-50 border-orange-200') : (dm?'bg-blue-900/20 border-blue-700':'bg-blue-50 border-blue-200')} ${alert.read ? (dm?'opacity-60':'opacity-70') : ''}`}>
-                        <div className="flex items-start gap-2">
-                          <div className={`shrink-0 mt-0.5 ${alert.severity === 'CRITICAL' ? 'text-red-600' : alert.severity === 'HIGH' ? 'text-orange-600' : 'text-blue-600'}`}>
-                            <Icons.Alert />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                              <span className={`text-xs font-bold uppercase ${alert.severity === 'CRITICAL' ? 'text-red-700' : alert.severity === 'HIGH' ? 'text-orange-700' : 'text-blue-700'}`}>{alert.severity}</span>
-                              <span className={`text-xs ${dm?'text-gray-400':'text-gray-500'}`}>{new Date(alert.timestamp).toLocaleTimeString()}</span>
-                            </div>
-                            <p className={`text-sm ${dm?'text-gray-300':'text-gray-700'}`}>{alert.message}</p>
-                          </div>
-                          <button onClick={() => { setRealTimeAlerts(realTimeAlerts.map(a => a.id === alert.id ? {...a, read: !a.read} : a)); }} className={`shrink-0 px-2 py-1 text-xs rounded ${dm?'hover:bg-gray-700':'hover:bg-gray-200'} transition-colors`}>
-                            {alert.read ? '↻' : '✓'}
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className={`text-center py-8 text-sm ${dm?'text-gray-400':'text-gray-500'}`}>No alerts at this time</div>
-                  )}
-                </div>
-              </Card>
-
-              <Card title="Alert Settings" icon={<Icons.Zap/>} dm={dm}>
-                <div className="space-y-4">
-                  <div>
-                    <label className={`text-xs font-semibold uppercase tracking-wider ${dm?'text-gray-400':'text-gray-500'} mb-2 block`}>Alert Types to Enable</label>
-                    <div className="space-y-2">
-                      {['Fraud Alerts', 'Low Productivity', 'System Alerts'].map((type) => (
-                        <label key={type} className="flex items-center gap-2 cursor-pointer">
-                          <input type="checkbox" defaultChecked className={`rounded w-4 h-4 ${dm?'bg-gray-700 border-gray-600':'border-gray-300'}`} />
-                          <span className={`text-sm ${dm?'text-gray-300':'text-gray-700'}`}>{type}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                  <div className={`border-t ${dm?'border-gray-700':'border-gray-200'} pt-4`}>
-                    <div className="flex items-center justify-between">
-                      <span className={`text-sm font-semibold ${dm?'text-gray-300':'text-gray-700'}`}>Browser Notifications</span>
-                      <div className={`w-10 h-6 rounded-full p-1 cursor-pointer transition-colors ${dm?'bg-blue-600':'bg-blue-500'}`}><div className={`w-4 h-4 rounded-full bg-white transition-transform ${true ? 'translate-x-4' : 'translate-x-0'}`}/></div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            <Card title="Email Digest Configuration" icon={<Icons.FileText/>} dm={dm}>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 border rounded-lg" style={{borderColor: dm?'#444':'#e0e0e0', background: dm?'rgba(255,255,255,0.02)':'#f9f9f9'}}>
-                  <div>
-                    <div className={`font-semibold text-sm ${dm?'text-white':'text-gray-900'}`}>Enable Email Digest</div>
-                    <div className={`text-xs ${dm?'text-gray-400':'text-gray-500'}`}>Send periodic team productivity summaries</div>
-                  </div>
-                  <input type="checkbox" checked={emailDigestEnabled} onChange={(e) => setEmailDigestEnabled(e.target.checked)} className={`w-5 h-5 rounded ${dm?'bg-gray-700 border-gray-600':'border-gray-300'}`} />
-                </div>
-
-                {emailDigestEnabled && (
-                  <div className="space-y-3 p-3 border rounded-lg" style={{borderColor: dm?'#444':'#e0e0e0', background: dm?'rgba(255,255,255,0.02)':'#f9f9f9'}}>
-                    <div>
-                      <label className={`text-xs font-semibold uppercase tracking-wider ${dm?'text-gray-400':'text-gray-500'} mb-2 block`}>Frequency</label>
-                      <select value={emailDigestFrequency} onChange={(e) => setEmailDigestFrequency(e.target.value as 'daily' | 'weekly' | 'biweekly')} className={`w-full px-3 py-2 rounded-lg text-sm border ${dm?'bg-gray-700 border-gray-600 text-white':'bg-white border-gray-200 text-gray-900'}`}>
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly (Monday 9 AM)</option>
-                        <option value="biweekly">Bi-weekly</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className={`text-xs font-semibold uppercase tracking-wider ${dm?'text-gray-400':'text-gray-500'} mb-2 block`}>Recipients (comma-separated)</label>
-                      <input type="text" value={emailRecipients} onChange={(e) => setEmailRecipients(e.target.value)} className={`w-full px-3 py-2 rounded-lg text-sm border ${dm?'bg-gray-700 border-gray-600 text-white':'bg-white border-gray-200 text-gray-900'}`} placeholder="email@example.com, email2@example.com" />
-                    </div>
-                    <button className={`w-full py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-blue-600 hover:bg-blue-700':'bg-blue-500 hover:bg-blue-600'}`}>Save Email Digest Settings</button>
-                  </div>
-                )}
-              </div>
-            </Card>
-
-            <Card title="Scheduled Reports" icon={<Icons.Calendar/>} dm={dm}>
-              <div className="space-y-3">
-                {scheduledReports.map((report) => (
-                  <div key={report.id} className={`p-4 border rounded-lg flex items-center justify-between ${dm?'bg-gray-700/30 border-gray-600':'bg-gray-50 border-gray-200'}`}>
-                    <div>
-                      <div className={`font-semibold text-sm ${dm?'text-white':'text-gray-900'}`}>{report.name}</div>
-                      <div className={`text-xs ${dm?'text-gray-400':'text-gray-500'}`}>Scheduled {report.frequency}</div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${report.enabled ? (dm?'bg-green-900/30 text-green-400':'bg-green-100 text-green-700') : (dm?'bg-gray-700 text-gray-400':'bg-gray-200 text-gray-600')}`}>
-                        {report.enabled ? 'Active' : 'Inactive'}
-                      </div>
-                      <button onClick={() => setScheduledReports(scheduledReports.map(r => r.id === report.id ? {...r, enabled: !r.enabled} : r))} className={`px-3 py-1 text-sm rounded transition-colors ${dm?'border border-gray-600 hover:bg-gray-700':'border border-gray-200 hover:bg-gray-100'}`}>
-                        {report.enabled ? 'Disable' : 'Enable'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                <button className={`w-full py-2 rounded-lg text-sm font-semibold border transition-colors ${dm?'border-gray-600 text-gray-300 hover:bg-gray-700':'border-gray-300 text-gray-700 hover:bg-gray-50'}`}>+ Add Scheduled Report</button>
-              </div>
-            </Card>
-
-            <Card title="PDF Export" icon={<Icons.Download/>} dm={dm}>
-              <div className="space-y-3">
-                <div className={`p-3 border rounded-lg ${dm?'bg-gray-700/30 border-gray-600':'bg-blue-50 border-blue-200'}`}>
-                  <div className={`font-semibold text-sm mb-2 ${dm?'text-blue-400':'text-blue-900'}`}>Export Current Dashboard</div>
-                  <div className={`text-xs mb-3 ${dm?'text-gray-400':'text-blue-800'}`}>Download the current dashboard view with all charts and metrics as PDF</div>
-                  <button onClick={() => handleExportCurrent()} disabled={exporting} className={`w-full py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-blue-600 hover:bg-blue-700':'bg-blue-500 hover:bg-blue-600'}`}>
-                    {exporting ? (exportLabel || 'Exporting...') : '📥 Export as PDF'}
-                  </button>
-                  <button onClick={() => handleExportPNG()} disabled={exporting} className={`w-full mt-2 py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-gray-600 hover:bg-gray-700':'bg-gray-500 hover:bg-gray-600'}`}>
-                    {exporting ? (exportLabel || 'Exporting...') : '🖼️ Export as PNG'}
-                  </button>
-                </div>
-                <div className={`p-3 border rounded-lg ${dm?'bg-gray-700/30 border-gray-600':'bg-blue-50 border-blue-200'}`}>
-                  <div className={`font-semibold text-sm mb-2 ${dm?'text-blue-400':'text-blue-900'}`}>Export by Date Range</div>
-                  <div className={`text-xs mb-3 ${dm?'text-gray-400':'text-blue-800'}`}>Select a date range and generate a comprehensive PDF report</div>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <input id="export-from" type="date" className={`px-3 py-2 rounded-lg text-sm border ${dm?'bg-gray-700 border-gray-600 text-white':'bg-white border-gray-200 text-gray-900'}`} />
-                    <input id="export-to" type="date" className={`px-3 py-2 rounded-lg text-sm border ${dm?'bg-gray-700 border-gray-600 text-white':'bg-white border-gray-200 text-gray-900'}`} />
-                  </div>
-                  <button onClick={() => handleExportRange()} disabled={exporting} className={`w-full py-2 rounded-lg text-sm font-semibold text-white transition-all ${dm?'bg-blue-600 hover:bg-blue-700':'bg-blue-500 hover:bg-blue-600'}`}>
-                    {exporting ? (exportLabel || 'Generating...') : '📥 Generate Report'}
-                  </button>
-                </div>
               </div>
             </Card>
           </div>
