@@ -1503,7 +1503,7 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-5 rounded-full bg-blue-500" />
           <h2 className={`text-base font-bold ${dm ? 'text-white' : 'text-gray-900'}`}>Quick Team Summary</h2>
-          <span className={`text-xs ${dm ? 'text-gray-500' : 'text-gray-400'}`}>â€” One-click export for all employees</span>
+          <span className={`text-xs ${dm ? 'text-gray-500' : 'text-gray-400'}`}>One-click export for all employees</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {quickCards.map(rc => (
@@ -1524,7 +1524,7 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-5 rounded-full bg-purple-500" />
           <h2 className={`text-base font-bold ${dm ? 'text-white' : 'text-gray-900'}`}>Detailed Employee Reports</h2>
-          <span className={`text-xs ${dm ? 'text-gray-500' : 'text-gray-400'}`}>â€” Per-employee, per-day breakdown with productivity scores</span>
+          <span className={`text-xs ${dm ? 'text-gray-500' : 'text-gray-400'}`}>Per-employee, per-day breakdown with productivity scores</span>
         </div>
         <div className={cardCls}>
           <div className="flex flex-wrap items-end gap-4 mb-5">
@@ -1579,7 +1579,7 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
 
       {/* === PREVIEW TABLE === */}
       <div className={cardCls}>
-        <h3 className={`text-sm font-bold mb-4 flex items-center gap-2 ${dm ? 'text-white' : 'text-gray-900'}`}><Icons.FileText /> Current Session Preview â€” Today</h3>
+        <h3 className={`text-sm font-bold mb-4 flex items-center gap-2 ${dm ? 'text-white' : 'text-gray-900'}`}><Icons.FileText /> Current Session Preview Today</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead><tr className={`border-b ${dm ? 'border-gray-700' : 'border-gray-200'}`}>
@@ -1592,7 +1592,7 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
             <tbody>{employees.map(emp => {
               const r = employeeReports[emp.id]; const a = r?.total_active_seconds || 0; const idle = r?.total_idle_seconds || 0;
               const prod = getProductivityScore(a, idle); const grade = getEfficiencyGrade(prod);
-              const topApp = r?.apps?.length ? r.apps.reduce((x, b) => x.active_seconds > b.active_seconds ? x : b).name : 'â€”';
+              const topApp = r?.apps?.length ? r.apps.reduce((x, b) => x.active_seconds > b.active_seconds ? x : b).name : '-';
               return (<tr key={emp.id} className={`border-b ${dm ? 'border-gray-700/50' : 'border-gray-50'}`}>
                 <td className="px-4 py-2.5"><div className="flex items-center gap-2"><div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px]" style={{ background: getAvatarColor(emp.name).bg, color: getAvatarColor(emp.name).text }}>{getInitials(emp.name)}</div><span className={`text-sm font-medium ${dm ? 'text-white' : 'text-gray-900'}`}>{emp.name}</span></div></td>
                 <td className={`px-4 py-2.5 text-sm font-mono-custom ${dm ? 'text-gray-300' : 'text-gray-700'}`}>{formatDuration(a) || '0m'}</td>
