@@ -126,7 +126,7 @@
 //         {bgElements}
 //         <div className="w-full max-w-md p-10 rounded-2xl text-center relative z-10 border" style={glassCardStyle}>
 //           <div className="absolute top-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)' }} />
-//           <div className="w-16 h-16 rounded-full flex items-center justify-center text-green-400 text-3xl mx-auto mb-5" style={{ background: 'rgba(25,128,56,0.15)', boxShadow: '0 0 30px rgba(25,128,56,0.15)' }}>âœ“</div>
+//           <div className="w-16 h-16 rounded-full flex items-center justify-center text-green-400 text-3xl mx-auto mb-5" style={{ background: 'rgba(25,128,56,0.15)', boxShadow: '0 0 30px rgba(25,128,56,0.15)' }}>✓</div>
 //           <h3 className="text-2xl font-bold text-white mb-2">Registration Successful!</h3>
 //           <p className="text-blue-200/40 mb-6 text-sm">Your account is pending admin approval.</p>
 //           <a href="#" onClick={(e) => { e.preventDefault(); onShowLogin(); }} className="text-blue-400 hover:text-blue-300 font-semibold text-sm transition-colors">Return to Login</a>
@@ -168,12 +168,12 @@
 //           <div className="space-y-1">
 //             <label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Password</label>
 //             <input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle}
-//               onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={password} onChange={(e) => setPassword(e.target.value)} required />
+//               onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
 //           </div>
 //           <div className="space-y-1">
 //             <label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Confirm Password</label>
 //             <input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle}
-//               onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+//               onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
 //           </div>
 //           <button type="submit" disabled={loading}
 //             className="w-full py-3 text-white font-semibold text-sm rounded-lg transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed mt-2 relative overflow-hidden group"
@@ -336,7 +336,7 @@
 //   if (!report || !report.apps || report.apps.length === 0) {
 //     return (
 //       <div className="py-12 text-center">
-//         <div className="text-4xl mb-3 opacity-30">ðŸ“Š</div>
+//         <div className="text-4xl mb-3 opacity-30"></div>
 //         <div className="text-base font-semibold text-gray-700">No activity recorded</div>
 //         <div className="text-sm text-gray-500 mt-1">Activity will appear once the agent is running</div>
 //       </div>
@@ -454,7 +454,7 @@
 
 //         {/* Date nav */}
 //         <div className="flex items-center justify-center gap-4 p-3 bg-gray-50 border-b border-gray-100">
-//           <button className="w-8 h-8 flex items-center justify-center border border-gray-200 bg-white rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-all" onClick={() => changeDate(-1)}>â†</button>
+//           <button className="w-8 h-8 flex items-center justify-center border border-gray-200 bg-white rounded-lg text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-all" onClick={() => changeDate(-1)}>←</button>
 //           <div className="flex items-center gap-2 bg-white px-3 py-1.5 border border-gray-200 rounded-lg shadow-sm">
 //             <Icons.Calendar />
 //             <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} max={todayStr}
@@ -462,7 +462,7 @@
 //             {isToday && <span className="text-[9px] font-bold uppercase bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Today</span>}
 //           </div>
 //           <button className="w-8 h-8 flex items-center justify-center border border-gray-200 bg-white rounded-lg text-gray-500 hover:bg-gray-50 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-//             onClick={() => changeDate(1)} disabled={isToday}>â†’</button>
+//             onClick={() => changeDate(1)} disabled={isToday}>→</button>
 //         </div>
 
 //         {/* Stats */}
@@ -865,10 +865,10 @@
 
 //                 {viewMode === 'date' ? (
 //                   <div className="flex items-center gap-2">
-//                     <button className="px-2 py-1 rounded bg-white border text-sm text-gray-600 hover:bg-gray-50" onClick={() => changeSelectedDate(-1)} title="Previous day">â—€</button>
+//                     <button className="px-2 py-1 rounded bg-white border text-sm text-gray-600 hover:bg-gray-50" onClick={() => changeSelectedDate(-1)} title="Previous day">â-€</button>
 //                     <input type="date" value={selectedDate} onChange={(e) => { setSelectedDate(e.target.value); setViewMode('date'); }} className="px-2 py-1 text-sm rounded border" max={getLocalDateString(new Date())} />
 //                     <button className="px-2 py-1 rounded bg-white border text-sm text-gray-600 hover:bg-gray-50" onClick={setToToday}>Today</button>
-//                     <button className="px-2 py-1 rounded bg-white border text-sm text-gray-600 hover:bg-gray-50" onClick={() => changeSelectedDate(1)} title="Next day">â–¶</button>
+//                     <button className="px-2 py-1 rounded bg-white border text-sm text-gray-600 hover:bg-gray-50" onClick={() => changeSelectedDate(1)} title="Next day">▶</button>
 //                   </div>
 //                 ) : (
 //                   <div className="text-sm text-gray-600">Viewing last <span className="font-semibold text-gray-800">{rangeDays}</span> days ending <span className="font-semibold text-gray-800">{selectedDate}</span></div>
@@ -1219,6 +1219,8 @@ const Icons = {
   Sun: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>),
   Download: () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>),
   FileText: () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>),
+  TrendingUp: () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>),
+  Search: () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>),
 };
 
 function formatDuration(seconds: number): string {
@@ -1296,7 +1298,7 @@ function LoginPage({ onLogin, onShowRegister }: { onLogin: () => void; onShowReg
         <form className="space-y-5" onSubmit={handleSubmit}>
           {error && (<div className="p-3 rounded-lg text-sm text-center font-medium text-red-300" style={{ background: 'rgba(218,30,40,0.15)', border: '1px solid rgba(218,30,40,0.25)' }}>{error}</div>)}
           <div className="space-y-1.5"><label className="text-xs font-semibold text-blue-200/70 uppercase tracking-wide">Email</label><input type="email" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} onFocus={(e) => { e.target.style.borderColor = 'rgba(15,98,254,0.4)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px rgba(15,98,254,0.1)'; }} onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2)'; }} placeholder="you@autonex.com" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-          <div className="space-y-1.5"><label className="text-xs font-semibold text-blue-200/70 uppercase tracking-wide">Password</label><input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} onFocus={(e) => { e.target.style.borderColor = 'rgba(15,98,254,0.4)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px rgba(15,98,254,0.1)'; }} onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2)'; }} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
+          <div className="space-y-1.5"><label className="text-xs font-semibold text-blue-200/70 uppercase tracking-wide">Password</label><input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={{ background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }} onFocus={(e) => { e.target.style.borderColor = 'rgba(15,98,254,0.4)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px rgba(15,98,254,0.1)'; }} onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2)'; }} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
           <button type="submit" disabled={loading} className="w-full py-3 text-white font-semibold text-sm rounded-lg transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden group" style={{ background: 'linear-gradient(135deg, #0F62FE, #3B82F6)', boxShadow: '0 8px 30px rgba(15,98,254,0.35), inset 0 1px 0 rgba(255,255,255,0.15)' }}><div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)' }} /><span className="relative">{loading ? 'Signing in...' : 'Sign In'}</span></button>
         </form>
         <div className="mt-6 text-center text-sm text-blue-200/30">Don't have an account?{' '}<a href="#" onClick={(e) => { e.preventDefault(); onShowRegister(); }} className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Register</a></div>
@@ -1316,7 +1318,7 @@ function RegisterPage({ onShowLogin }: { onShowLogin: () => void }) {
   const inputStyle = { background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' };
   const handleInputFocus = (e: React.FocusEvent<HTMLInputElement>) => { e.target.style.borderColor = 'rgba(15,98,254,0.4)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2), 0 0 0 3px rgba(15,98,254,0.1)'; };
   const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)'; e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.2)'; };
-  if (success) { return (<div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 0%, #112D6E 0%, #0A1A4A 40%, #060E2B 100%)' }}>{bgElements}<div className="w-full max-w-md p-10 rounded-2xl text-center relative z-10 border" style={glassCardStyle}><div className="absolute top-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)' }} /><div className="w-16 h-16 rounded-full flex items-center justify-center text-green-400 text-3xl mx-auto mb-5" style={{ background: 'rgba(25,128,56,0.15)', boxShadow: '0 0 30px rgba(25,128,56,0.15)' }}>âœ“</div><h3 className="text-2xl font-bold text-white mb-2">Registration Successful!</h3><p className="text-blue-200/40 mb-6 text-sm">Your account is pending admin approval.</p><a href="#" onClick={(e) => { e.preventDefault(); onShowLogin(); }} className="text-blue-400 hover:text-blue-300 font-semibold text-sm transition-colors">Return to Login</a></div></div>); }
+  if (success) { return (<div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 0%, #112D6E 0%, #0A1A4A 40%, #060E2B 100%)' }}>{bgElements}<div className="w-full max-w-md p-10 rounded-2xl text-center relative z-10 border" style={glassCardStyle}><div className="absolute top-0 left-6 right-6 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)' }} /><div className="w-16 h-16 rounded-full flex items-center justify-center text-green-400 text-3xl mx-auto mb-5" style={{ background: 'rgba(25,128,56,0.15)', boxShadow: '0 0 30px rgba(25,128,56,0.15)' }}>✓</div><h3 className="text-2xl font-bold text-white mb-2">Registration Successful!</h3><p className="text-blue-200/40 mb-6 text-sm">Your account is pending admin approval.</p><a href="#" onClick={(e) => { e.preventDefault(); onShowLogin(); }} className="text-blue-400 hover:text-blue-300 font-semibold text-sm transition-colors">Return to Login</a></div></div>); }
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: 'radial-gradient(ellipse at 50% 0%, #112D6E 0%, #0A1A4A 40%, #060E2B 100%)' }}>
       {bgElements}
@@ -1327,8 +1329,8 @@ function RegisterPage({ onShowLogin }: { onShowLogin: () => void }) {
           {error && <div className="p-3 rounded-lg text-sm text-center font-medium text-red-300" style={{ background: 'rgba(218,30,40,0.15)', border: '1px solid rgba(218,30,40,0.25)' }}>{error}</div>}
           <div className="space-y-1"><label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Full Name</label><input type="text" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle} onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} required /></div>
           <div className="space-y-1"><label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Email</label><input type="email" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle} onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="you@autonex.com" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-          <div className="space-y-1"><label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Password</label><input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle} onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-          <div className="space-y-1"><label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Confirm Password</label><input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle} onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required /></div>
+          <div className="space-y-1"><label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Password</label><input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle} onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
+          <div className="space-y-1"><label className="text-xs font-semibold text-blue-200/50 uppercase tracking-wide">Confirm Password</label><input type="password" className="w-full px-3.5 py-3 rounded-lg text-sm text-white placeholder-blue-300/25 focus:outline-none transition-all" style={inputStyle} onFocus={handleInputFocus} onBlur={handleInputBlur} placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required /></div>
           <button type="submit" disabled={loading} className="w-full py-3 text-white font-semibold text-sm rounded-lg transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed mt-2 relative overflow-hidden group" style={{ background: 'linear-gradient(135deg, #0F62FE, #3B82F6)', boxShadow: '0 8px 30px rgba(15,98,254,0.35), inset 0 1px 0 rgba(255,255,255,0.15)' }}><div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)' }} /><span className="relative">{loading ? 'Creating Account...' : 'Register'}</span></button>
         </form>
         <div className="mt-6 text-center text-sm text-blue-200/30">Already have an account?{' '}<a href="#" onClick={(e) => { e.preventDefault(); onShowLogin(); }} className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">Sign In</a></div>
@@ -1355,7 +1357,7 @@ function EmployeeListView({ employees, employeeReports, onViewDetails, onDelete,
 
 function AppUsageWithSubActivities({ report }: { report: DailyReport | null }) {
   const [expandedApps, setExpandedApps] = useState<Set<string>>(new Set());
-  if (!report || !report.apps || report.apps.length === 0) return (<div className="py-12 text-center"><div className="text-4xl mb-3 opacity-30">ðŸ“Š</div><div className="text-base font-semibold text-gray-700">No activity recorded</div><div className="text-sm text-gray-500 mt-1">Activity will appear once the agent is running</div></div>);
+  if (!report || !report.apps || report.apps.length === 0) return (<div className="py-12 text-center"><div className="text-4xl mb-3 opacity-30"></div><div className="text-base font-semibold text-gray-700">No activity recorded</div><div className="text-sm text-gray-500 mt-1">Activity will appear once the agent is running</div></div>);
   const toggleApp = (n: string) => { const s = new Set(expandedApps); s.has(n) ? s.delete(n) : s.add(n); setExpandedApps(s); };
   const maxSeconds = Math.max(...report.apps.map(a => a.active_seconds));
   return (<div className="space-y-2">{report.apps.map((app, idx) => { const isExp = expandedApps.has(app.name); const hasSub = app.sub_activities && app.sub_activities.length > 0; const pct = Math.round((app.active_seconds / maxSeconds) * 100); const color = CHART_PALETTE[idx % CHART_PALETTE.length]; return (<div key={idx}><div onClick={() => hasSub && toggleApp(app.name)} className={`flex items-center gap-3 p-3 border transition-all ${isExp ? 'bg-gray-50 border-gray-300 rounded-t-xl border-b-0' : 'bg-white border-gray-200 rounded-xl hover:shadow-sm hover:border-gray-300'} ${hasSub ? 'cursor-pointer' : ''}`}><div className="text-gray-300 w-3.5">{hasSub ? <Icons.ChevronRight expanded={isExp} /> : null}</div><div className="w-9 h-9 rounded-lg flex items-center justify-center font-extrabold text-sm shrink-0" style={{ background: color + '18', color }}>{app.name.charAt(0).toUpperCase()}</div><div className="flex-1 min-w-0"><div className="flex justify-between items-center mb-1.5"><div className="flex items-center gap-2 overflow-hidden"><span className="font-semibold text-sm text-gray-900 truncate">{app.name}</span>{app.is_browser && <span className="text-[9px] font-bold tracking-wider uppercase text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">Browser</span>}</div><span className="font-mono-custom font-semibold text-sm" style={{ color }}>{formatDuration(app.active_seconds)}</span></div><div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden"><div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: color }} /></div></div></div>{isExp && hasSub && (<div className="bg-gray-50 border-x border-b border-gray-300 rounded-b-xl divide-y divide-gray-200">{app.sub_activities.map((sub, si) => (<div key={si} className="flex items-center gap-2.5 py-2.5 px-4 pl-16 hover:bg-gray-100 transition-colors"><div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: color, opacity: 0.6 }} /><span className="flex-1 text-sm text-gray-700 truncate font-medium">{sub.name}</span><span className="font-mono-custom text-xs text-gray-500 shrink-0">{formatDuration(sub.duration_seconds)}</span></div>))}</div>)}</div>); })}</div>);
@@ -1368,7 +1370,7 @@ function EmployeeDetailModal({ employee, onClose }: { employee: UserInfo; onClos
   const changeDate = (days: number) => { const d = new Date(selectedDate + 'T12:00:00'); d.setDate(d.getDate() + days); setSelectedDate(getLocalDateString(d)); };
   const todayStr = getLocalDateString(new Date()); const isToday = selectedDate === todayStr;
   const appPieData = (report?.apps || []).slice(0, 6).map((app, i) => ({ name: app.name, value: app.active_seconds, fill: CHART_PALETTE[i % CHART_PALETTE.length] }));
-  return (<div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(22,22,22,0.4)', backdropFilter: 'blur(6px)' }} onClick={onClose}><div className="w-full max-w-4xl bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-scale-in" style={{ maxHeight: '90vh' }} onClick={(e) => e.stopPropagation()}><div className="flex items-center justify-between p-5 border-b border-gray-200"><div className="flex items-center gap-3"><div className="w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold" style={{ background: getAvatarColor(employee.name).bg, color: getAvatarColor(employee.name).text }}>{getInitials(employee.name)}</div><div><h2 className="text-lg font-bold text-gray-900">{employee.name}</h2><p className="text-xs text-gray-500">{employee.email}</p></div></div><button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors" onClick={onClose}><Icons.Close /></button></div><div className="flex items-center justify-center gap-4 p-3 bg-gray-50 border-b border-gray-100"><button className="w-8 h-8 flex items-center justify-center border border-gray-200 bg-white rounded-lg text-gray-500 hover:bg-gray-50 transition-all" onClick={() => changeDate(-1)}>â†</button><div className="flex items-center gap-2 bg-white px-3 py-1.5 border border-gray-200 rounded-lg shadow-sm"><Icons.Calendar /><input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} max={todayStr} className="bg-transparent border-none text-gray-700 text-sm font-medium focus:outline-none" />{isToday && <span className="text-[9px] font-bold uppercase bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Today</span>}</div><button className="w-8 h-8 flex items-center justify-center border border-gray-200 bg-white rounded-lg text-gray-500 hover:bg-gray-50 transition-all disabled:opacity-30" onClick={() => changeDate(1)} disabled={isToday}>â†’</button></div><div className="grid grid-cols-4 gap-3 p-5 bg-gray-50 border-b border-gray-100"><div className="bg-white rounded-xl p-3.5 text-center border border-gray-200 shadow-sm"><div className="text-xl font-extrabold text-blue-600 font-mono-custom">{loading ? '...' : formatDuration(totalActive) || '0m'}</div><div className="text-[10px] font-bold uppercase text-gray-400 mt-1 tracking-wider">Active Time</div></div><div className="bg-white rounded-xl p-3.5 text-center border border-gray-200 shadow-sm"><div className="text-xl font-extrabold text-gray-700 font-mono-custom">{loading ? '...' : formatDuration(totalIdle) || '0m'}</div><div className="text-[10px] font-bold uppercase text-gray-400 mt-1 tracking-wider">Idle Time</div></div><div className="bg-white rounded-xl p-3.5 text-center border border-gray-200 shadow-sm"><div className="text-xl font-extrabold text-green-600 font-mono-custom">{loading ? '...' : appsCount}</div><div className="text-[10px] font-bold uppercase text-gray-400 mt-1 tracking-wider">Apps Used</div></div><div className="bg-white rounded-xl p-3.5 text-center border border-gray-200 shadow-sm"><div className="text-xl font-extrabold font-mono-custom" style={{ color: grade.color }}>{loading ? '...' : `${prodScore}%`}</div><div className="text-[10px] font-bold uppercase text-gray-400 mt-1 tracking-wider">Productivity</div></div></div><div className="flex-1 overflow-y-auto p-5 bg-white">{!loading && appPieData.length > 0 && (<div className="mb-6"><h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">App Time Distribution</h4><div style={{ height: 200 }}><ResponsiveContainer><PieChart><Pie data={appPieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">{appPieData.map((e, i) => <Cell key={i} fill={e.fill} />)}</Pie><Tooltip content={<ChartTooltip />} /><Legend iconType="circle" iconSize={8} formatter={(v: string) => <span className="text-xs text-gray-700">{v}</span>} /></PieChart></ResponsiveContainer></div></div>)}<h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Detailed Activity Log</h4>{loading ? (<div className="text-center py-12 text-gray-500 animate-pulse">Loading activity data...</div>) : (<AppUsageWithSubActivities report={report} />)}</div></div></div>);
+  return (<div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: 'rgba(22,22,22,0.4)', backdropFilter: 'blur(6px)' }} onClick={onClose}><div className="w-full max-w-4xl bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-scale-in" style={{ maxHeight: '90vh' }} onClick={(e) => e.stopPropagation()}><div className="flex items-center justify-between p-5 border-b border-gray-200"><div className="flex items-center gap-3"><div className="w-11 h-11 rounded-full flex items-center justify-center text-lg font-bold" style={{ background: getAvatarColor(employee.name).bg, color: getAvatarColor(employee.name).text }}>{getInitials(employee.name)}</div><div><h2 className="text-lg font-bold text-gray-900">{employee.name}</h2><p className="text-xs text-gray-500">{employee.email}</p></div></div><button className="p-2 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors" onClick={onClose}><Icons.Close /></button></div><div className="flex items-center justify-center gap-4 p-3 bg-gray-50 border-b border-gray-100"><button className="w-8 h-8 flex items-center justify-center border border-gray-200 bg-white rounded-lg text-gray-500 hover:bg-gray-50 transition-all" onClick={() => changeDate(-1)}>←</button><div className="flex items-center gap-2 bg-white px-3 py-1.5 border border-gray-200 rounded-lg shadow-sm"><Icons.Calendar /><input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} max={todayStr} className="bg-transparent border-none text-gray-700 text-sm font-medium focus:outline-none" />{isToday && <span className="text-[9px] font-bold uppercase bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Today</span>}</div><button className="w-8 h-8 flex items-center justify-center border border-gray-200 bg-white rounded-lg text-gray-500 hover:bg-gray-50 transition-all disabled:opacity-30" onClick={() => changeDate(1)} disabled={isToday}>→</button></div><div className="grid grid-cols-4 gap-3 p-5 bg-gray-50 border-b border-gray-100"><div className="bg-white rounded-xl p-3.5 text-center border border-gray-200 shadow-sm"><div className="text-xl font-extrabold text-blue-600 font-mono-custom">{loading ? '...' : formatDuration(totalActive) || '0m'}</div><div className="text-[10px] font-bold uppercase text-gray-400 mt-1 tracking-wider">Active Time</div></div><div className="bg-white rounded-xl p-3.5 text-center border border-gray-200 shadow-sm"><div className="text-xl font-extrabold text-gray-700 font-mono-custom">{loading ? '...' : formatDuration(totalIdle) || '0m'}</div><div className="text-[10px] font-bold uppercase text-gray-400 mt-1 tracking-wider">Idle Time</div></div><div className="bg-white rounded-xl p-3.5 text-center border border-gray-200 shadow-sm"><div className="text-xl font-extrabold text-green-600 font-mono-custom">{loading ? '...' : appsCount}</div><div className="text-[10px] font-bold uppercase text-gray-400 mt-1 tracking-wider">Apps Used</div></div><div className="bg-white rounded-xl p-3.5 text-center border border-gray-200 shadow-sm"><div className="text-xl font-extrabold font-mono-custom" style={{ color: grade.color }}>{loading ? '...' : `${prodScore}%`}</div><div className="text-[10px] font-bold uppercase text-gray-400 mt-1 tracking-wider">Productivity</div></div></div><div className="flex-1 overflow-y-auto p-5 bg-white">{!loading && appPieData.length > 0 && (<div className="mb-6"><h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">App Time Distribution</h4><div style={{ height: 200 }}><ResponsiveContainer><PieChart><Pie data={appPieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">{appPieData.map((e, i) => <Cell key={i} fill={e.fill} />)}</Pie><Tooltip content={<ChartTooltip />} /><Legend iconType="circle" iconSize={8} formatter={(v: string) => <span className="text-xs text-gray-700">{v}</span>} /></PieChart></ResponsiveContainer></div></div>)}<h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Detailed Activity Log</h4>{loading ? (<div className="text-center py-12 text-gray-500 animate-pulse">Loading activity data...</div>) : (<AppUsageWithSubActivities report={report} />)}</div></div></div>);
 }
 
 function FraudAlertPanel({ alerts }: { alerts: FraudAlert[] }) {
@@ -1412,16 +1414,6 @@ function exportSummaryRecordsCSV(data: EmployeeSummaryRecord[], label: string) {
     `"${r.top_app}"`, r.activity_score
   ].join(','));
   downloadCSVBlob([headers.join(','), ...rows].join('\n'), `workwise-detailed-${label}-${getLocalDateString(new Date())}.csv`);
-}
-
-function exportRawLogsCSV(data: any[], label: string) {
-  const headers = ['Timestamp', 'Employee Name', 'Email', 'App Name', 'Window Title', 'Mouse Count', 'Key Count', 'Is Idle', 'Session ID'];
-  const rows = data.map(r => [
-    r.timestamp, `"${r.user_name}"`, `"${r.user_email}"`,
-    `"${r.app_name}"`, `"${(r.window_title || '').replace(/"/g, '""')}"`,
-    r.mouse_count, r.key_count, r.is_idle, r.session_id || ''
-  ].join(','));
-  downloadCSVBlob([headers.join(','), ...rows].join('\n'), `workwise-rawdata-${label}-${getLocalDateString(new Date())}.csv`);
 }
 
 // ============================================================
@@ -1496,9 +1488,9 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
   const btnOut = `flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg border transition-all active:scale-[0.98] ${dm ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`;
 
   const quickCards = [
-    { id: 'today' as const, title: 'Daily Summary', desc: "Today's team productivity overview", icon: 'ðŸ“‹', color: '#0F62FE' },
-    { id: 'weekly' as const, title: 'Weekly Summary', desc: 'Aggregated last 7 days', icon: 'ðŸ“Š', color: '#6929C4' },
-    { id: 'monthly' as const, title: 'Monthly Summary', desc: 'Aggregated last 30 days', icon: 'ðŸ“ˆ', color: '#198038' },
+    { id: 'today' as const, title: 'Daily Summary', desc: "Today's team productivity overview", icon: 'daily', color: '#0F62FE' },
+    { id: 'weekly' as const, title: 'Weekly Summary', desc: 'Aggregated last 7 days', icon: 'weekly', color: '#6929C4' },
+    { id: 'monthly' as const, title: 'Monthly Summary', desc: 'Aggregated last 30 days', icon: 'monthly', color: '#198038' },
   ];
 
   const periodOpts = [{ value: 1, label: 'Today' }, { value: 7, label: 'Last 7 Days' }, { value: 14, label: 'Last 14 Days' }, { value: 30, label: 'Last 30 Days' }, { value: 60, label: 'Last 60 Days' }, { value: 90, label: 'Last 90 Days' }];
@@ -1506,7 +1498,7 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
   return (
     <div className="p-8 pt-6 space-y-8 animate-fade-in">
 
-      {/* â•â•â• SECTION 1: QUICK TEAM SUMMARY â•â•â• */}
+      {/* === SECTION 1: QUICK TEAM SUMMARY === */}
       <div>
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-5 rounded-full bg-blue-500" />
@@ -1516,7 +1508,7 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {quickCards.map(rc => (
             <div key={rc.id} className={`${cardCls} transition-all hover:shadow-lg`}>
-              <div className="flex items-start justify-between mb-3"><div className="text-3xl">{rc.icon}</div><span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${dm ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-500'}`}>{employees.length} employees</span></div>
+              <div className="flex items-start justify-between mb-3">{rc.id === 'today' ? <Icons.FileText /> : rc.id === 'weekly' ? <Icons.BarChart3 /> : <Icons.TrendingUp />}<span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${dm ? 'bg-gray-700 text-gray-400' : 'bg-gray-100 text-gray-500'}`}>{employees.length} employees</span></div>
               <h3 className={`text-lg font-bold mb-1 ${dm ? 'text-white' : 'text-gray-900'}`}>{rc.title}</h3>
               <p className={`text-sm mb-5 ${dm ? 'text-gray-400' : 'text-gray-500'}`}>{rc.desc}</p>
               <button onClick={() => handleQuickExport(rc.id)} disabled={quickLoading !== null} className={btnPri(quickLoading !== null)} style={{ background: rc.color, boxShadow: `0 4px 15px ${rc.color}40` }}>
@@ -1527,7 +1519,7 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
         </div>
       </div>
 
-      {/* â•â•â• SECTION 2: DETAILED EMPLOYEE REPORTS â•â•â• */}
+      {/* === SECTION 2: DETAILED EMPLOYEE REPORTS === */}
       <div>
         <div className="flex items-center gap-2 mb-4">
           <div className="w-1 h-5 rounded-full bg-purple-500" />
@@ -1546,7 +1538,7 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
 
           {detailFetched && detailData.length === 0 && (
             <div className={`py-10 text-center rounded-xl border ${dm ? 'border-gray-700 bg-gray-800/30' : 'border-gray-100 bg-gray-50'}`}>
-              <div className="text-3xl mb-2 opacity-40">ðŸ“­</div>
+              <div className="text-3xl mb-2 opacity-40"><Icons.Search /></div>
               <div className={`text-sm font-semibold ${dm ? 'text-gray-400' : 'text-gray-500'}`}>No data found for the selected filters</div>
               <div className={`text-xs mt-1 ${dm ? 'text-gray-500' : 'text-gray-400'}`}>Try a different employee or a wider date range</div>
             </div>
@@ -1556,7 +1548,7 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
             <div>
               <div className="flex items-center justify-between mb-3">
                 <span className={`text-xs font-bold uppercase tracking-wider ${dm ? 'text-gray-400' : 'text-gray-500'}`}>{detailData.length} records found</span>
-                <span className={`text-xs ${dm ? 'text-gray-500' : 'text-gray-400'}`}>{detailEmpId === 'all' ? 'All employees' : employees.find(e => e.id === detailEmpId)?.name} Â· Last {detailDays} day{detailDays > 1 ? 's' : ''}</span>
+                <span className={`text-xs ${dm ? 'text-gray-500' : 'text-gray-400'}`}>{detailEmpId === 'all' ? 'All employees' : employees.find(e => e.id === detailEmpId)?.name} · Last {detailDays} day{detailDays > 1 ? 's' : ''}</span>
               </div>
               <div className="overflow-x-auto rounded-xl border" style={{ maxHeight: 400, overflowY: 'auto' }}>
                 <table className="w-full text-left border-collapse">
@@ -1579,13 +1571,13 @@ function ReportsTab({ employees, employeeReports, fraudAlerts, dm }: { employees
                   </tbody>
                 </table>
               </div>
-              {detailData.length > 100 && <div className={`text-center py-2 text-xs ${dm ? 'text-gray-500' : 'text-gray-400'}`}>Showing first 100 of {detailData.length} rows Â· Download CSV for full data</div>}
+              {detailData.length > 100 && <div className={`text-center py-2 text-xs ${dm ? 'text-gray-500' : 'text-gray-400'}`}>Showing first 100 of {detailData.length} rows · Download CSV for full data</div>}
             </div>
           )}
         </div>
       </div>
 
-      {/* â•â•â• PREVIEW TABLE â•â•â• */}
+      {/* === PREVIEW TABLE === */}
       <div className={cardCls}>
         <h3 className={`text-sm font-bold mb-4 flex items-center gap-2 ${dm ? 'text-white' : 'text-gray-900'}`}><Icons.FileText /> Current Session Preview â€” Today</h3>
         <div className="overflow-x-auto">
@@ -1769,12 +1761,12 @@ function Dashboard({ user, onLogout }: { user: { name: string; role: string }; o
               <button onClick={() => { setViewMode('range'); setRangeDays(30); }} className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${viewMode === 'range' && rangeDays === 30 ? (dm ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600 border border-blue-200') : (dm ? 'border border-gray-600 text-gray-400 hover:bg-gray-700' : 'border border-gray-200 text-gray-600 hover:bg-gray-100')}`}>Last 30 Days</button>
               {viewMode === 'date' && (
                 <div className="flex items-center gap-2 ml-auto">
-                  <button onClick={() => { const d = new Date(selectedDate + 'T12:00:00'); d.setDate(d.getDate() - 1); setSelectedDate(getLocalDateString(d)); }} className={`w-8 h-8 flex items-center justify-center border rounded-lg text-sm transition-all ${dm ? 'border-gray-600 text-gray-400 hover:bg-gray-700' : 'border-gray-200 text-gray-600 hover:bg-gray-100'}`}>â†</button>
+                  <button onClick={() => { const d = new Date(selectedDate + 'T12:00:00'); d.setDate(d.getDate() - 1); setSelectedDate(getLocalDateString(d)); }} className={`w-8 h-8 flex items-center justify-center border rounded-lg text-sm transition-all ${dm ? 'border-gray-600 text-gray-400 hover:bg-gray-700' : 'border-gray-200 text-gray-600 hover:bg-gray-100'}`}>←</button>
                   <div className={`flex items-center gap-2 px-3 py-1.5 border rounded-lg shadow-sm ${dm ? 'border-gray-600 bg-gray-700 text-gray-300' : 'border-gray-200 bg-white'}`}>
                     <Icons.Calendar />
                     <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} max={getLocalDateString(new Date())} className={`bg-transparent border-none text-sm font-medium focus:outline-none ${dm ? 'text-gray-300' : 'text-gray-700'}`} />
                   </div>
-                  <button onClick={() => { const d = new Date(selectedDate + 'T12:00:00'); d.setDate(d.getDate() + 1); const maxDate = new Date(); if (d <= maxDate) setSelectedDate(getLocalDateString(d)); }} disabled={selectedDate >= getLocalDateString(new Date())} className={`w-8 h-8 flex items-center justify-center border rounded-lg text-sm transition-all disabled:opacity-30 ${dm ? 'border-gray-600 text-gray-400 hover:bg-gray-700 disabled:hover:bg-transparent' : 'border-gray-200 text-gray-600 hover:bg-gray-100 disabled:hover:bg-transparent'}`}>â†’</button>
+                  <button onClick={() => { const d = new Date(selectedDate + 'T12:00:00'); d.setDate(d.getDate() + 1); const maxDate = new Date(); if (d <= maxDate) setSelectedDate(getLocalDateString(d)); }} disabled={selectedDate >= getLocalDateString(new Date())} className={`w-8 h-8 flex items-center justify-center border rounded-lg text-sm transition-all disabled:opacity-30 ${dm ? 'border-gray-600 text-gray-400 hover:bg-gray-700 disabled:hover:bg-transparent' : 'border-gray-200 text-gray-600 hover:bg-gray-100 disabled:hover:bg-transparent'}`}>→</button>
                 </div>
               )}
               {viewMode === 'range' && (
