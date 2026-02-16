@@ -93,6 +93,24 @@ export interface UserInfo {
     created_at: string;
 }
 
+// Data Export types
+export interface EmployeeSummaryRecord {
+    user_id: string;
+    user_email: string;
+    user_name: string;
+    date: string;
+    active_hours: number;
+    idle_hours: number;
+    total_hours: number;
+    total_mouse_events: number;
+    total_key_events: number;
+    unique_apps: number;
+    top_app: string;
+    activity_score: number;
+}
+
+
+
 class ApiClient {
     private token: string | null = null;
 
@@ -145,6 +163,7 @@ class ApiClient {
 
         return response.json();
     }
+
 
     // Auth endpoints
     async login(email: string, password: string): Promise<{ access_token: string }> {
@@ -244,6 +263,8 @@ class ApiClient {
             method: 'DELETE',
         });
     }
+
+
 }
 
 export const api = new ApiClient();
