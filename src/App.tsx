@@ -1414,6 +1414,15 @@ function exportSummaryRecordsCSV(data: EmployeeSummaryRecord[], label: string) {
   downloadCSVBlob([headers.join(','), ...rows].join('\n'), `workwise-detailed-${label}-${getLocalDateString(new Date())}.csv`);
 }
 
+function exportRawLogsCSV(data: any[], label: string) {
+  const headers = ['Timestamp', 'Employee Name', 'Email', 'App Name', 'Window Title', 'Mouse Count', 'Key Count', 'Is Idle', 'Session ID'];
+  const rows = data.map(r => [
+    r.timestamp, `"${r.user_name}"`, `"${r.user_email}"`,
+    `"${r.app_name}"`, `"${(r.window_title || '').replace(/"/g, '""')}"`,
+    r.mouse_count, r.key_count, r.is_idle, r.session_id || ''
+  ].join(','));
+  downloadCSVBlob([headers.join(','), ...rows].join('\n'), `workwise-rawdata-${label}-${getLocalDateString(new Date())}.csv`);
+}
 
 // ============================================================
 // REPORTS TAB
