@@ -109,6 +109,138 @@ export interface EmployeeSummaryRecord {
     activity_score: number;
 }
 
+// Team types
+export interface TeamInfo {
+    id: string;
+    name: string;
+    member_count: number;
+    rule_count: number;
+    created_at: string | null;
+}
+
+export interface TeamMember {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    is_active: boolean;
+}
+
+export interface AppRule {
+    id: number;
+    app_pattern: string;
+    category: string;
+    match_type: string;
+}
+
+export interface TeamDetail {
+    id: string;
+    name: string;
+    created_at: string | null;
+    members: TeamMember[];
+    rules: AppRule[];
+}
+
+export interface MemberProductivity {
+    user_id: string;
+    name: string;
+    email: string;
+    productive_seconds: number;
+    neutral_seconds: number;
+    non_productive_seconds: number;
+    productivity_score: number;
+    total_logs: number;
+    top_apps: {
+        name: string;
+        productive_seconds: number;
+        neutral_seconds: number;
+        non_productive_seconds: number;
+        total_seconds: number;
+    }[];
+}
+
+export interface TeamProductivityReport {
+    team_id: string;
+    team_name: string;
+    date: string;
+    members: MemberProductivity[];
+    summary: {
+        total_productive_seconds: number;
+        total_neutral_seconds: number;
+        total_non_productive_seconds: number;
+        team_productivity_score: number;
+        member_count: number;
+    };
+}
+
+export interface TeamComparison {
+    date: string;
+    teams: {
+        team_id: string;
+        team_name: string;
+        productivity_score: number;
+        productive_seconds: number;
+        neutral_seconds: number;
+        non_productive_seconds: number;
+        member_count: number;
+        active_members: number;
+    }[];
+}
+
+export interface TeamTrend {
+    team_id: string;
+    team_name: string;
+    days: number;
+    trends: {
+        date: string;
+        day: string;
+        productivity_score: number;
+        productive_seconds: number;
+        neutral_seconds: number;
+        non_productive_seconds: number;
+        active_members: number;
+    }[];
+}
+
+export interface RuleSuggestion {
+    team_id: string;
+    team_name: string;
+    suggestions: {
+        app_pattern: string;
+        suggested_category: string;
+        confidence: string;
+        total_seconds: number;
+        usage_display: string;
+    }[];
+}
+
+export interface MemberActivity {
+    team_id: string;
+    team_name: string;
+    user_id: string;
+    name: string;
+    email: string;
+    date: string;
+    productive_seconds: number;
+    neutral_seconds: number;
+    non_productive_seconds: number;
+    productivity_score: number;
+    total_seconds: number;
+    apps: {
+        app_name: string;
+        productive_seconds: number;
+        neutral_seconds: number;
+        non_productive_seconds: number;
+        total_seconds: number;
+        primary_category: string;
+        windows: string[];
+    }[];
+    timeline: {
+        time: string;
+        app: string;
+        category: string;
+    }[];
+}
 
 
 class ApiClient {
@@ -176,7 +308,6 @@ class ApiClient {
     }
 
     async register(email: string, password: string, name: string): Promise<{ success: boolean; message: string }> {
-        // Registration now requires admin approval - no token returned
         return this.request('/api/auth/register', {
             method: 'POST',
             body: JSON.stringify({ email, password, name }),
@@ -264,7 +395,108 @@ class ApiClient {
         });
     }
 
+    // Teams endpoints
+    async getTeams(): Promise<TeamInfo[]> {
+        return this.request('/api/teams');
+    }
+
+    async getTeamDetail(teamId: string): Promise<TeamDetail> {
+        return this.request(`/api/teams/${teamId}`);
+    }
+
+    async createTeam(name: string): Promise<{ id: string; name: string; success: boolean }> {
+        return this.request('/api/teams', {
+            method: 'POST',
+            body: JSON.stringify({ name }),
+        });
+    }
+
+    async deleteTeam(teamId: string): Promise<{ success: boolean; message: string }> {
+        return this.request(`/api/teams/${teamId}`, {
+            method: 'DELETE',
+        });
+    }
+
+    async assignUserToTeam(userId: string, teamId: string): Promise<{ success: boolean; message: string }> {
+        return this.request('/api/teams/assign', {
+            method: 'POST',
+            body: JSON.stringify({ user_id: userId, team_id: teamId }),
+        });
+    }
+
+    async getTeamRules(teamId: string): Promise<AppRule[]> {
+        return this.request(`/api/teams/${teamId}/rules`);
+    }
+
+    async addTeamRule(teamId: string, appPattern: string, category: string, matchType: string = 'contains'): Promise<{ id: number; app_pattern: string; category: string; success: boolean }> {
+        return this.request(`/api/teams/${teamId}/rules`, {
+            method: 'POST',
+            body: JSON.stringify({ app_pattern: appPattern, category, match_type: matchType }),
+        });
+    }
+
+    async bulkUpdateRules(teamId: string, rules: { productive: string[]; neutral: string[]; non_productive: string[] }): Promise<{ success: boolean; total_rules: number }> {
+        return this.request(`/api/teams/${teamId}/rules/bulk`, {
+            method: 'PUT',
+            body: JSON.stringify(rules),
+        });
+    }
+
+    async deleteTeamRule(teamId: string, ruleId: number): Promise<{ success: boolean; message: string }> {
+        return this.request(`/api/teams/${teamId}/rules/${ruleId}`, {
+            method: 'DELETE',
+        });
+    }
+
+    async getTeamProductivity(teamId: string, date?: string): Promise<TeamProductivityReport> {
+        const params = new URLSearchParams();
+        if (date) params.append('date', date);
+        const query = params.toString();
+        return this.request(`/api/teams/${teamId}/productivity${query ? `?${query}` : ''}`);
+    }
+
+    async getTeamComparison(date?: string): Promise<TeamComparison> {
+        const params = new URLSearchParams();
+        if (date) params.append('date', date);
+        const query = params.toString();
+        return this.request(`/api/teams/compare${query ? `?${query}` : ''}`);
+    }
+
+    async getTeamTrends(teamId: string, days: number = 7): Promise<TeamTrend> {
+        return this.request(`/api/teams/${teamId}/trends?days=${days}`);
+    }
+
+    async getTeamSuggestRules(teamId: string): Promise<RuleSuggestion> {
+        return this.request(`/api/teams/${teamId}/suggest-rules`);
+    }
+
+    async exportTeamReport(teamId: string, date?: string): Promise<void> {
+        const token = this.getToken();
+        const params = new URLSearchParams();
+        if (date) params.append('date', date);
+        const query = params.toString();
+        const url = `${API_BASE_URL}/api/teams/${teamId}/export${query ? `?${query}` : ''}`;
+        const res = await fetch(url, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (!res.ok) throw new Error('Failed to export');
+        const blob = await res.blob();
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        const disposition = res.headers.get('Content-Disposition');
+        a.download = disposition?.match(/filename="(.+)"/)?.[1] || 'team_report.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+
+    async getMemberActivity(teamId: string, userId: string, date?: string): Promise<MemberActivity> {
+        const params = new URLSearchParams();
+        if (date) params.append('date', date);
+        const query = params.toString();
+        return this.request(`/api/teams/${teamId}/members/${userId}/activity${query ? `?${query}` : ''}`);
+    }
 
 }
 
 export const api = new ApiClient();
+
