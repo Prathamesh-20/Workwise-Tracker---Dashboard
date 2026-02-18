@@ -242,6 +242,30 @@ export interface MemberActivity {
     }[];
 }
 
+export interface DetectedApps {
+    team_id: string;
+    apps: {
+        app_name: string;
+        is_browser: boolean;
+        total_seconds: number;
+        tabs: {
+            window_title: string;
+            display_name: string;
+            total_seconds: number;
+            user_count: number;
+            current_category: string | null;
+            matched_rule: string | null;
+            matched_rule_id: number | null;
+        }[];
+    }[];
+    summary: {
+        total_apps: number;
+        total_unique_tabs: number;
+        classified_tabs: number;
+        unclassified_tabs: number;
+    };
+}
+
 
 class ApiClient {
     private token: string | null = null;
@@ -494,6 +518,10 @@ class ApiClient {
         if (date) params.append('date', date);
         const query = params.toString();
         return this.request(`/api/teams/${teamId}/members/${userId}/activity${query ? `?${query}` : ''}`);
+    }
+
+    async getDetectedApps(teamId: string, days: number = 7): Promise<DetectedApps> {
+        return this.request(`/api/teams/${teamId}/detected-apps?days=${days}`);
     }
 
 }

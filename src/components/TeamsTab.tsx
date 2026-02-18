@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import type {
     UserInfo, TeamInfo, TeamDetail, TeamProductivityReport,
-    TeamComparison, TeamTrend, RuleSuggestion, MemberActivity
+    TeamComparison, TeamTrend, RuleSuggestion, MemberActivity,
+    DetectedApps
 } from '../lib/api';
 import {
     AreaChart, Area, BarChart, Bar, Cell,
@@ -58,6 +59,13 @@ export default function TeamsTab({ employees, dm }: { employees: UserInfo[]; dm?
     const [showDrillDown, setShowDrillDown] = useState(false);
     const [activeSubTab, setActiveSubTab] = useState<'overview' | 'comparison'>('overview');
 
+    // Detected apps states
+    const [detectedApps, setDetectedApps] = useState<DetectedApps | null>(null);
+    const [detectedLoading, setDetectedLoading] = useState(false);
+    const [detectedFilter, setDetectedFilter] = useState<'unclassified' | 'all' | 'productive' | 'non_productive' | 'neutral'>('unclassified');
+    const [expandedApps, setExpandedApps] = useState<Set<string>>(new Set());
+    const [detectedDays, setDetectedDays] = useState(7);
+
     // Loaders
     const loadTeams = async () => {
         try {
@@ -81,6 +89,10 @@ export default function TeamsTab({ employees, dm }: { employees: UserInfo[]; dm?
     };
     const loadSuggestions = async (id: string) => {
         try { setSuggestions(await api.getTeamSuggestRules(id)); setShowSuggestions(true); } catch (e) { console.error(e); }
+    };
+    const loadDetectedApps = async (id: string, days: number = 7) => {
+        setDetectedLoading(true);
+        try { setDetectedApps(await api.getDetectedApps(id, days)); } catch (e) { console.error(e); } finally { setDetectedLoading(false); }
     };
 
     // Handlers
@@ -123,8 +135,9 @@ export default function TeamsTab({ employees, dm }: { employees: UserInfo[]; dm?
             loadTeamDetail(selectedTeamId);
             loadProductivity(selectedTeamId, prodDate);
             loadTrends(selectedTeamId, trendDays);
+            loadDetectedApps(selectedTeamId, detectedDays);
         }
-    }, [selectedTeamId, prodDate, trendDays]);
+    }, [selectedTeamId, prodDate, trendDays, detectedDays]);
 
     const bg = dm ? 'bg-gray-800/50' : 'bg-white';
     const border = dm ? 'border-gray-700' : 'border-gray-200';
@@ -406,6 +419,197 @@ export default function TeamsTab({ employees, dm }: { employees: UserInfo[]; dm?
                             </div>
                         </>
                     )}
+
+                    {/* ========= DETECTED APPS & TABS ========= */}
+                    {selectedTeamId && detectedApps && (() => {
+                        const toggleApp = (name: string) => {
+                            setExpandedApps(prev => {
+                                const next = new Set(prev);
+                                next.has(name) ? next.delete(name) : next.add(name);
+                                return next;
+                            });
+                        };
+
+                        const extractPattern = (displayName: string): string => {
+                            const parts = displayName.split(' - ');
+                            if (parts[0].trim().length < 3 && parts.length > 1) {
+                                return parts.slice(0, 2).join(' - ').trim();
+                            }
+                            return parts[0].trim();
+                        };
+
+                        const handleQuickAction = async (displayName: string, category: string) => {
+                            if (!selectedTeamId) return;
+                            const pattern = extractPattern(displayName);
+                            try {
+                                await api.addTeamRule(selectedTeamId, pattern, category);
+                                loadDetectedApps(selectedTeamId, detectedDays);
+                                loadTeamDetail(selectedTeamId);
+                            } catch (e: any) { alert(e.message); }
+                        };
+
+                        // Filter apps/tabs
+                        const filteredApps = detectedApps.apps.map(app => {
+                            const filteredTabs = app.tabs.filter(t => {
+                                if (detectedFilter === 'all') return true;
+                                if (detectedFilter === 'unclassified') return t.current_category === null;
+                                return t.current_category === detectedFilter;
+                            });
+                            return { ...app, tabs: filteredTabs };
+                        }).filter(app => app.tabs.length > 0);
+
+                        // Count per filter
+                        const allTabs = detectedApps.apps.flatMap(a => a.tabs);
+                        const counts = {
+                            all: allTabs.length,
+                            unclassified: allTabs.filter(t => t.current_category === null).length,
+                            productive: allTabs.filter(t => t.current_category === 'productive').length,
+                            non_productive: allTabs.filter(t => t.current_category === 'non_productive').length,
+                            neutral: allTabs.filter(t => t.current_category === 'neutral').length,
+                        };
+
+                        const fmtSec = (s: number): string => {
+                            if (s <= 0) return '0m';
+                            const h = Math.floor(s / 3600);
+                            const m = Math.floor((s % 3600) / 60);
+                            return h > 0 ? `${h}h ${m}m` : `${m}m`;
+                        };
+
+                        const GlobeIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>;
+                        const MonitorIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>;
+                        const ChevronRight = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>;
+                        const ChevronDown = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>;
+
+                        return (
+                            <div className={`border rounded-xl shadow-sm overflow-hidden ${bg} ${border}`}>
+                                <div className={`flex items-center justify-between px-5 py-4 border-b ${border}`}>
+                                    <div className="flex items-center gap-2">
+                                        <h3 className={`text-sm font-bold flex items-center gap-2 ${text}`}>
+                                            <TIcon.Eye /> Detected Apps & Tabs
+                                        </h3>
+                                        {counts.unclassified > 0 && (
+                                            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                                                {counts.unclassified} unclassified
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        {[7, 14, 30].map(d => (
+                                            <button key={d} onClick={() => setDetectedDays(d)}
+                                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${detectedDays === d ? 'bg-blue-600 text-white' : `${dm ? 'bg-gray-600 text-gray-300' : 'bg-white text-gray-600'} border ${border}`}`}>
+                                                {d}D
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Filter bar */}
+                                <div className={`flex items-center gap-2 px-5 py-3 border-b ${border} overflow-x-auto`}>
+                                    {([['unclassified', 'Unclassified'], ['all', 'All'], ['productive', 'Productive'], ['non_productive', 'Non-Prod'], ['neutral', 'Neutral']] as const).map(([key, label]) => (
+                                        <button key={key} onClick={() => setDetectedFilter(key)}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${detectedFilter === key
+                                                    ? key === 'unclassified' ? 'bg-amber-500 text-white'
+                                                        : key === 'productive' ? 'bg-green-600 text-white'
+                                                            : key === 'non_productive' ? 'bg-red-600 text-white'
+                                                                : key === 'neutral' ? 'bg-gray-500 text-white'
+                                                                    : 'bg-blue-600 text-white'
+                                                    : `${dm ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'} hover:opacity-80`
+                                                }`}>
+                                            {label} <span className="ml-1 opacity-75">({counts[key]})</span>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {detectedLoading ? (
+                                    <div className="flex items-center justify-center py-12"><div className="custom-spinner" /></div>
+                                ) : filteredApps.length === 0 ? (
+                                    <div className={`px-5 py-10 text-center text-sm ${textSub}`}>No apps found for this filter.</div>
+                                ) : (
+                                    <div className={`divide-y ${dm ? 'divide-gray-700' : 'divide-gray-100'}`} style={{ maxHeight: 520, overflowY: 'auto' }}>
+                                        {filteredApps.map(app => {
+                                            const isExpanded = expandedApps.has(app.app_name);
+                                            return (
+                                                <div key={app.app_name}>
+                                                    {/* App header row */}
+                                                    <button
+                                                        onClick={() => toggleApp(app.app_name)}
+                                                        className={`w-full flex items-center gap-3 px-5 py-3 text-left ${hoverRow} transition-colors`}
+                                                    >
+                                                        <span className={`transition-transform ${isExpanded ? '' : ''}`}>
+                                                            {isExpanded ? <ChevronDown /> : <ChevronRight />}
+                                                        </span>
+                                                        <span className={`flex-shrink-0 ${dm ? 'text-blue-400' : 'text-blue-600'}`}>
+                                                            {app.is_browser ? <GlobeIcon /> : <MonitorIcon />}
+                                                        </span>
+                                                        <span className={`text-sm font-semibold flex-1 truncate ${text}`}>{app.app_name}</span>
+                                                        <span className={`text-xs font-semibold ${textSub}`}>{fmtSec(app.total_seconds)}</span>
+                                                        <span className={`text-xs px-2 py-0.5 rounded-full ${dm ? 'bg-gray-600 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>
+                                                            {app.tabs.length} tab{app.tabs.length !== 1 ? 's' : ''}
+                                                        </span>
+                                                    </button>
+
+                                                    {/* Expanded tabs */}
+                                                    {isExpanded && (
+                                                        <div className={`${dm ? 'bg-gray-800/30' : 'bg-gray-50/50'}`}>
+                                                            {app.tabs.map((tab, ti) => {
+                                                                const isUnclassified = tab.current_category === null;
+                                                                return (
+                                                                    <div key={ti}
+                                                                        className={`flex items-center gap-3 px-5 pl-14 py-2.5 transition-colors ${isUnclassified
+                                                                                ? dm ? 'bg-amber-900/10 hover:bg-amber-900/20' : 'bg-amber-50/60 hover:bg-amber-50'
+                                                                                : `${hoverRow} opacity-70 hover:opacity-100`
+                                                                            }`}
+                                                                    >
+                                                                        <div className="flex-1 min-w-0">
+                                                                            <div className={`text-sm truncate ${isUnclassified ? `font-semibold ${text}` : text}`} title={tab.window_title}>
+                                                                                {tab.display_name}
+                                                                            </div>
+                                                                            <div className={`text-xs ${textSub} flex items-center gap-3 mt-0.5`}>
+                                                                                <span>{fmtSec(tab.total_seconds)}</span>
+                                                                                <span>{tab.user_count} user{tab.user_count !== 1 ? 's' : ''}</span>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Category indicator or quick-action buttons */}
+                                                                        {isUnclassified ? (
+                                                                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                                                                                <button onClick={(e) => { e.stopPropagation(); handleQuickAction(tab.display_name, 'productive'); }}
+                                                                                    className="px-2 py-1 rounded text-[11px] font-bold bg-green-100 text-green-700 hover:bg-green-200 transition-all">
+                                                                                    ✓ Productive
+                                                                                </button>
+                                                                                <button onClick={(e) => { e.stopPropagation(); handleQuickAction(tab.display_name, 'neutral'); }}
+                                                                                    className="px-2 py-1 rounded text-[11px] font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all">
+                                                                                    ● Neutral
+                                                                                </button>
+                                                                                <button onClick={(e) => { e.stopPropagation(); handleQuickAction(tab.display_name, 'non_productive'); }}
+                                                                                    className="px-2 py-1 rounded text-[11px] font-bold bg-red-100 text-red-700 hover:bg-red-200 transition-all">
+                                                                                    ✗ Non-Prod
+                                                                                </button>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className="flex items-center gap-2 flex-shrink-0">
+                                                                                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${tab.current_category === 'productive' ? 'bg-green-500'
+                                                                                        : tab.current_category === 'non_productive' ? 'bg-red-500'
+                                                                                            : 'bg-gray-400'
+                                                                                    }`} />
+                                                                                <span className={`text-xs font-medium ${textSub}`}>
+                                                                                    {tab.matched_rule || tab.current_category}
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </>
             )}
 
